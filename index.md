@@ -32,36 +32,36 @@ In addition, for participants new to genomic sequencing and genomic data, we ask
 
 Here you will be able to download the course exercise materials. Click each link to download data files and access exercise instructions. Links to solutions will be added once the exercises are complete.
 
-Exercise 1: [Data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/FMD-AU-data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1.html), [Tips](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_Tips.html), <! -- and [Solutions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_results.pdf). -->
+Exercise 1: [Data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/FMD-AU-data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1.html), [Tips](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_Tips.html)<!--,  and [Solutions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_results.pdf). -->
 
-Exercise 2: [Instructions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise2.html), [Extra Helper Code](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/wf_distribution.R)
-and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex2_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex2_tbdata.R).
+Exercise 2: [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise2.html), [Extra Helper Code](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/wf_distribution.R)
+<!-- and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex2_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex2_tbdata.R). -->
 
-Exercise 3: [Data](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Flu_data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise3.html), [Extension exercise](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise3_extension.html) and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex3_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex3_tbdata.R).
+Exercise 3: [Data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Flu_data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise3.html), [Extension exercise](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise3_extension.html) <!-- and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex3_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex3_tbdata.R). -->
 
-Exercise 4: [Instructions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise4.html), [TransPhylo Extra Code](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/transphylo_extras.R) and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex4_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex4_tbdata.R).
+Exercise 4: [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise4.html), [TransPhylo Extra Code](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/transphylo_extras.R) <!-- and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex4_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex4_tbdata.R). -->
 
-Data for exercises 2, 3, 4: [TB data](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/TB_data.zip). COVID-19 data will be provided on Slack.
+Data for exercises 2, 3, 4: [TB data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/TB_data.zip). COVID-19 data will be provided on Slack.
 
 
 ### Lecture slides
 
 Here you will be able to download the lecture slides.
 
-[Lecture 1](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/sismid_L1_intro-b-2023.pdf)
+[Lecture 1](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_L1_intro-b-2024.pdf)
 
-[Lecture 2](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/SISMID-L2-NONPHYLO.pdf)
+[Lecture 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/SISMID-L2-NONPHYLO.pdf)
 
-[Lecture 3](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/IntroPhylogeneticsNotes-2023.html)
+[Lecture 3](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/IntroPhylogeneticsNotes-2024.html)
 
-[Lecture 4](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/sismid_L3_transphylomath_2023.pdf)
+[Lecture 4](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_L3_transphylomath_2024.pdf)
 
-[Lecture 5](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/L5-RF.pdf)
+[Lecture 5](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/L5-RF.pdf)
 
 
 ### Resources/reading list
 
-For a list of papers/websites/books we either mentioned during the course or just think you might find interesting, check out the [resources list](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/Resources_list.pdf)
+For a list of papers/websites/books we either mentioned during the course or just think you might find interesting, check out the [resources list](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/Resources_list.pdf)
 
 ### Contact
 
