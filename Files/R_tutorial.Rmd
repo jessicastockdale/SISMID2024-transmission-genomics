@@ -1,0 +1,383 @@
+---
+title: "An introduction to R and R Studio"
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Preparing for SISMID 'Reconstructing transmission with genomic data'
+
+There are lots of great tutorials for R and RStudio available online. Here we have collated an introduction that will be relevant for our course, in which we will refer a lot to this comprehensive Introduction to R tutorial at [r-tutor.com](http://www.r-tutor.com/r-introduction).
+
+## Getting started
+
+If you haven't already, **install R and RStudio** [here](https://www.rstudio.com/products/rstudio/download/#download) (make sure you install R before Rstudio).
+
+R is the programming language we will use throughout this module. RStudio is an IDE (integrated development environment) - a program which allows you to use R but with higher quality graphics, better workspace management and an overall improved design. You can use R without Rstudio (but not RStudio without R), however RStudio will make your life much easier!
+
+(1) Launch RStudio.
+
+This document is written in R markdown (.Rmd) which outputs a nice html (or pdf) file. But you can follow this tutorial by creating a regular R script (.R), this will be easier. A detailed guide to R markdown can be found [here](https://bookdown.org/yihui/rmarkdown/basics.html) if you want to learn more.
+
+(2) Click on 'File' -> 'New File' -> 'R script'.
+
+This will open a blank script that you can write in and save. When you run lines of the script, they will appear in the console with their output. You can type commands directly in the console instead, but making a script means you have a saved record of your code. To run code you have written in a script, you can use the 'Run' button at the top right of the script, or just use Ctrl+Enter to run line by line. 
+
+(3) Save your script 'File' -> 'Save' in a folder of your choice.
+
+## Entering commands
+
+Read the page http://www.r-tutor.com/r-introduction. 
+
+(1) Try creating some variables: for example, create a variable x that is 7^2 (49). 
+
+(2) Use base R functions to compute the square root of x, 2*x, sin(x), cos(x), x+3*x^2, etc.
+
+```{r}
+x <- 7^2
+x
+sqrt(x)
+```
+
+(3) Read the help documentation for the function `sin`. You can type `help(sin)` as directed in the tutorial, or use the search function of the help tab, which should be on the right hand side of RStudio.
+
+A useful tip for when writing R scripts is to write yourself comments alongside the actual function code. You can do this with the `#` symbol. Everything after `#` in a line of R code is considered a comment i.e. not actual code to be run. This is useful when you come back to code you wrote in the past and can't remember what it does! For example
+```{r}
+sqrt(x) # this function calculates the square root of x
+```
+
+### Data types
+
+Next, advance to the 'basic data types' page at http://www.r-tutor.com/r-introduction/basic-data-types, where you can familiarize yourself with the basic data types: numeric, integer, complex, logical and character, by going through the pages and running some of the code. 
+
+For example: 
+
+(1) Run 
+```{r}
+y = sin(x)
+```
+What is the class of y? What is the value of y? 
+
+(2) Try 
+
+```{r}
+is.integer(10)
+```
+  Why do you think the answer is `FALSE`? 
+
+Read the section on integers
+
+(3) Make new variables which store the following things, converted into integers: `10`, `sin(x)`, `"Hi"` and `"3.99"`. 
+
+Play with complex numbers if you like, though we won't need them for this module. Then move ahead to the logical section 
+
+(4) Using what you just learned from the logical section, check that your variables from (3) are indeed all stored as integers. 
+
+Now move to the character section. This is important because often, data in character format (like which county someone lives in or which colour something is) are represented as 'factors' in R.  Factors are important in epidemiological data analysis, as patterns can be different depending on the value of the variable (e.g. infection rates show different trends in different counties). 
+
+(4) Make a character variable that is your own first and last name. Use the `substr` function to extract the first and fourth characters. Play around with pasting strings together using the `paste` function. See `?paste` or `help(paste)` if you would like to know what the options are (as with any function).
+
+## Vectors
+
+Moving to the next section, we look at vectors http://www.r-tutor.com/r-introduction/vector. Vectors are key. In epi and genomic analyses, we usually want to store our data in a data.frame. Each column is a vector - of integers, characters, numeric values, etc. Working with vectors will give you the basic tools you need to work with columns of data frames. 
+
+(1) Create the vector of character strings "hi", "there", "hi", "there", "hi", "there" using the concatenate function `c()`. Name your vector `mychars`. You can also look at how to define this vector more efficiently using the function `rep()`.
+
+## Comparing values vs assigment 
+
+As we have seen, in R the assignment operator is `<-`. But it is possible to use `=` as well. Although `<-` is more robust overall, in practice `=` will work in almost all circumstances. `=` is also used to give functions their arguments.
+
+Assigning the value of a variable is different than *testing* equality; this is true in any programming language. We test equality with `==`. So you can type `x=2` to assign 2 to x, then test `x==4` (FALSE) or `x==2` (TRUE). 
+
+(1) Comparisons work on vectors in a pointwise way. Use `==` to tell which entries of `mychars` are "hi". 
+
+(2) Make some quick vectors like these: 
+```{r}
+x=1:10
+x
+```
+
+```{r}
+x<5
+```
+
+```{r}
+y=2*(1:10) # the : operator goes through 1, 2, 3, 4, ... 
+y
+```
+
+(3) Play with some vectors. Use the concatenate function `c()` to join them together. If they have different formats, what happens? With reference to the [vector arithmetic page in the tutorial](http://www.r-tutor.com/r-introduction/vector/vector-arithmetics), multiply and divide them. A word of warning: be careful of the recycling rule! Personally, I prefer not to use it - I find it too easy to get something that surprises me (unless you are very used to it). 
+
+## Indexing
+
+Explore indexing with reference to the next page http://www.r-tutor.com/r-introduction/vector/numeric-index-vector. What happens when you use negative indices? This is actually a really convenient feature of R - it's easy to exclude based on a condition.
+
+(1) Read the help file for the function `which`. Use it with the vectors you have created so far to find the indices where those vectors meet conditions that you specify. For example `which(x<10 & x >6)` and so on. 
+
+One of the things that can take some getting used to in R is the difference between ( ) and [ ], particularly if you're used to another language like Matlab. So x(10) is NOT the 10th member of the vector x. x(10) gives an error (try it!). Instead, `x[10]` is the 10th member of the vector x. While this can be annoying, it makes code easier to read because it's immediately clear when you are accessing a component of a (vector or matrix) variable vs when you are applying a function to an argument. 
+
+(2) R can use logical indexing. Try this out with the syntax `x[x<10]` or `x[x>3]`. If you're not sure what this means, you can check out the next tutorial page http://www.r-tutor.com/r-introduction/vector/logical-index-vector
+
+R can also *name* its vector entries, data frame columns, rows and other objects. This is *extremely* useful. 
+
+(3) Try it out with reference to http://www.r-tutor.com/r-introduction/vector/named-vector-members. Make a vector and name its elements. 
+
+## Matrices 
+
+(1) Now that you are a bit more used to R and to working with vectors, use logical indexing and negative indices to create the following vectors: 
+
+```{r, echo=FALSE, eval=TRUE}
+x=2*(1:15); x
+y=x[x<20]; y
+z=x[-(2:4)]; z
+```
+
+(2) With reference to the matrix page (http://www.r-tutor.com/r-introduction/matrix), create this matrix and name it `mymatrix`:
+
+```{r, echo=FALSE, eval=TRUE}
+mymatrix = matrix(1:12,4,3); mymatrix
+```
+
+You can access the whole fist row of a matrix with `mymatrix[1,]` and a whole column with `mymatrix[,1]` (or instead of 1, another row or column).
+
+Matrix multiplication is done with `X*Y` where X and Y are matrices. R has (of course) many built-in functions for eigenvalues, inverting matrices, decompositions and so on. We won't need anything like that for this course, but many matrix functions are listed [here](https://www.statmethods.net/advstats/matrix.html) if you are interested. 
+
+Note the `cbind` (column bind; appending columns to each other to create a matrix) and `rbind` (row-bind: append rows on to your matrix) functions. These also work with data frames. 
+
+(3) Create the following matrix using `cbind`
+```{r, echo=FALSE, eval=TRUE}
+mymat=cbind(1:7, 2:8, 3:9, 4:10)
+mymat
+```
+
+## Data frames
+
+Now start with reading about data frames, [here](http://www.r-tutor.com/r-introduction/data-frame). 
+
+(1) Take a look at the (included with R) mtcars data, using `head(mtcars)` and `str(mtcars)`. Use the `[,1]` or `[,3]` or `[,4]`etc. commands to extract column and row slices from mtcars. 
+
+There are loads of datasets included with R, you can see a list of them with the `data()` command. These can be very useful when learning new techniques in R, and a lot of online tutorials will use them too. There are also so many tutorials and introductions to data frames out there, if you want to learn more. For example, there are more examples and a motivation and discussion of data frames at https://statistics.berkeley.edu/computing/r-vectors-matrices. 
+
+(2) Explore accessing the columns of mtcars with the syntax `mtcars$disp`. You can use this to make plots, e.g. histograms `hist(mtcars$disp)` or direct (non-ggplot - you'll learn what this means later) scatter plots like `plot(mtcars$mpg, mtcars$hp)` (miles per gallon and horsepower). 
+
+```{r}
+hist(mtcars$disp)
+```
+
+(3) Create a matrix, name the columns, and convert it to a data frame with the function `as.data.frame`. You can create a matrix by glueing columns of vectors together, e.g. `mymatrix=cbind(0:10, 2:12)`, and you can set their names with the `colnames` function. 
+
+You can also create a data frame with the `data.frame` function, e.g.
+```{r}
+mydf=data.frame(ID=1:10, names=paste("person", 1:10, sep=''), country ="UK")
+mydf
+```
+
+## Factors
+Read a bit about factors in R here https://www.r-bloggers.com/data-types-part-3-factors/
+
+(1) How many unique values of `mtcars$vs` are there? (hint: use the function `unique`)
+
+(2) Make your own copy of the mtcars data, e.g. `owncars= mtcars`. Convert `owncars$vs` to a factor using the function `as.factor`.
+
+**Note:** entering the command `as.factor(owncars$vs)` does not convert the type of `owncars$vs` to factor, it creates a new variable which is `owncars$vs` as a factor. In order to convert, we need to define `owncars$vs = as.factor(owncars$vs)`.
+
+When you are playing with things like the in-built datasets, it is usually a good idea to make your own copy before making any changes to the dataset. This way you know that the original version is still in memory if you need it. 
+
+## Lists
+
+Read about lists (next two links; http://www.r-tutor.com/r-introduction/list and http://www.r-tutor.com/r-introduction/list/named-list-members). 
+
+(1) Create a list called `mylist` containing three items: a vector with value 1,2,3 named `FredVector`, a matrix of zeros named `JustineMatrix` and a character variable with the value "hi", named `greeting`. 
+```{r, echo=F}
+mylist=list()
+mylist[[1]]=c(1,2,3)
+mylist[[2]]=matrix(0, 2,3)
+mylist[[3]]="hi"
+names(mylist)=c("FredVector","JustineMatrix","greeting")
+mylist
+```
+
+(2) Now access the (2,3) entry of JustineMatrix
+
+If you have long lists with many entries, R is nice in that if you start to type e.g. `mylist$` into the console, it will pop up with the names of the list elements. If you have a big list (or data frame, matrix etc.) and it's hard to read printed in the console, you can also look in the 'Environment' tab in RStudio, or enter the command `View(mylist)`, `View(mydf)`. This last one is particularly useful for big data frames because you can easily and non-permanently sort and filter columns (like in Excel).
+
+
+## Packages
+
+Although a lot of functions are available in base R, there's a whole world of other functions available as R packages. These are free libraries of code written by R users all over the world - and we'll be using several during this module. You can install new packages from within RStudio by clicking 'Tools' -> 'Install Packages...', or simply by typing `install.packages("<the package's name>")`. 
+
+(1) Install a package we'll need in the next section with `install.packages("ggplot2")`
+
+You'll need to have internet access to download packages. Using the `install.packages()` function as above will download them from CRAN (Comprehensive R Archive Network). However, you only have to install a package once. When you want to use it again in the future, you can use the `library()` function to tell R to access it from your local files. 
+
+(2) Load the ggplot2 package using 
+```{r}
+library(ggplot2)
+```
+
+It's also possible to download packages directly from other people's Github repositories. The commands are different but the approach is very similar. We will cover this in the second R tutorial, since we will need to download a specific package this way for the module. 
+
+
+## Plots with ggplot; also relevant for data frames
+
+As you might have seen from the plots you made earlier, the in-built R plotting tools aren't the most visually pleasing (at least in their default form). A really popular alternative is ggplot. We can't cover all of ggplot here, but we will give a brief intro. (Like with data frames, there are many ggplot tutorials online if you want to learn more).
+
+The ggplot syntax is very different to basic R plotting, and it can take some getting used to. But once you do, it's much easier to make complex and high quality plots. 
+
+(1) First, type `help(mtcars)` to remind yourself of the different column names
+
+In the next few steps we'll make a scatterplot of miles/gallon `mpg` against gross horsepower `hp`. 
+
+(2) To start a ggplot, we need to tell it what data frame to use, and what columns to have on which axis. Try entering the command 
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg))  
+```
+
+`aes` stands for 'aesthetic mapping' - each aesthetic is a mapping between something you see (here, the x- and y-axes) and the variable you want to use for it. However, as you've probably noticed, this command gave us the right axes, but didn't plot any data!
+
+(3) Let’s make a scatterplot on top of the blank ggplot by adding points using a geom layer called `geom_point`:
+
+```{r}
+ggplot(mtcars, aes(x=hp, y=mpg)) + geom_point()
+```
+
+Geometric objects (`geom`s) are the actual marks or lines that make up our plot: `geom_point` for points, `geom_line` for lines, `geom_boxplot` for boxplots and [many more](https://ggplot2.tidyverse.org/reference/). 
+
+There's a whole range of further customizations we can make to our ggplot. 
+
+(4) Work through each line of the following code and work out which commands are controlling which aspects of the plot.
+
+```{r}
+gg <- ggplot(mtcars, aes(x=hp, y=mpg)) + 
+  geom_point(aes(col=carb), size=3) +  
+  geom_smooth(method="lm", col="firebrick", size=2) + 
+  coord_cartesian(xlim=c(50, 300), ylim=c(10, 30)) + 
+  labs(title="Miles per gallon against gross horsepower", subtitle="From mtcars dataset", y="Mpg (US)", x="Horsepower (gross)", caption="1974 Car Trends") + theme_minimal()
+plot(gg)
+```
+
+You can plot using the ggplot command directly, as we did in steps 2 and 3, or you can assign them to a variable as I did here. 
+
+(5) Explore some plots, grouped or coloured by `vs`. For example, use ggplot with data `owncars` instead of `mtcars`. Again, set the aesthetic `aes` options to `x=hp,y=mpg` to make a scatter plot of mpg vs hp. Colour the plot by the variable `vs`. Above, you made a copy of mtcars and changed vs to a factor. How does this affect the plots in ggplot? 
+
+
+## Defining functions
+ 
+We can define our own functions with the syntax `funName <- function(argumentlist){lines of code}`, like this:
+```{r} 
+mysquare <- function(x) { return(x^2) } 
+mysquare(10)
+```
+
+Or a bigger one:
+
+```{r}
+myfunction <- function(x,y) {
+    xs=x^2
+    ys=y^2
+    print("hi")
+    return(xs+ys)
+}
+myfunction(1,2)
+```
+
+Unlike some other languages, R doesn't return more than one value. If you need to return a lot of different things, you have to put them in a list; you can use a syntax like `return(list( firstthing=xs, secondthing=ys))`.
+
+You can read more about functions, environments and so on here: https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial#user
+
+(1) Create a function called `getv` that takes one argument, called `k`, and returns a vector whose entries are `k+1, k+2, ..., k+10`. Test your function with `k=1000`. 
+```{r, echo=F}
+getv <- function(k) { return( (k+1):(k+10))}
+getv(1000)
+```
+
+## Loops and iteration. 
+
+See https://www.r-bloggers.com/how-to-write-the-first-for-loop-in-r/.
+The syntax of the `for` loop in R is: 
+```{r}
+for (n in 1:10) { 
+print(2*n)
+} 
+```
+
+R loops over the variable in the ( ), performing all commands inside { } for each value of the variable. Here, that means R loops through `n=1`, `n=2`, ..., `n=10`, and prints the value of `2*n` for each `n`. 
+
+(1) Use a for loop to compute and display the first 20 Fibonacci numbers. Recall that this is a sequence defined as $F_n = F_{n-1}+F_{n-2}$, where $F_1=F_2=1$ . You have to set the first two manually (i.e. they don't have to be computed in your loop). **Hint:** it will be easiest to use a vector to store the sequence. 
+
+```{r, echo=F}
+fns=0*(1:20)
+fns[1]=1; fns[2]=1
+for (n in 3:20) {
+fns[n]=fns[n-1]+fns[n-2]
+}
+fns
+```
+
+A nice feature of R is explained here: https://www.r-bloggers.com/using-apply-sapply-lapply-in-r/. These functions (lapply, sapply, vapply) often mean that you don't have to explicitly write loops. You don't need to know about these for this module, but they are a useful tool if you are planning on using R beyond this. 
+
+
+## Random numbers
+We can create some random samples from different distributions using commands `runif` (random uniform), `rnorm` (random normal), etc. We often need random numbers for the statistical approaches used in genomic and epidemiological analyses - for example in MCMC which we will touch on in this module and which is the focus of other SISMID modules.
+
+```{r}
+x=rnorm(10)
+x
+y=x+rnorm(10,mean=50,sd=.1)
+y
+cor(x,y) # finds the correlation between x and y
+```
+
+You can get reproducible results, even with random numbers, by setting the 'seed' in the random number generator to a specific value. Since random numbers in computers aren't truly random (they are 'pseudorandom'), this allows you to reset to the same seed later, so that you can get exactly the same random sample again. 
+
+```{r}
+set.seed(1301)
+rnorm(5)
+set.seed(3)
+rnorm(5)
+set.seed(1301)
+rnorm(5)
+```
+
+(1) Use `rnorm` and `runif` to create some random vectors: normally and uniformly distributed. Use `plot` to make some simple scatter plots of them. 
+
+## Loading data; getting your R session in the right directory
+
+You can read files into R from any directory using a command like `read.csv("C:/MyFolder/MyFile.csv)` for .csv files, `read.table(...)` for .txt files and so on. But it can be annoying to type the whole file path every time, particularly if your files are buried inside lots of folders. A good solution is to put all your data, code etc. for your project in one folder (let's say it's "C:/MyAccount/Documents/SISMID2021") and then use `setwd("C:\MyAccount\Documents\SISMID2021")`. This sets the SISMID2021 folder as your 'working directory', and now to load or save any files in the folder, you only need to use `read.csv("MyFile.csv)`. 
+
+(1) Check what your current working directory is using the command `getwd()`. If it's not the folder you want it to be, set it using `setwd("<your file path here>")`. 
+
+**Note:** if you want to make a new folder to have as your working directory, make sure you do this outside of R first in the usual way on your operating system. `setwd()` cannot make folders for you. 
+
+(2) Save the variable `y` you defined in the last section to a text file using the command `write.table(y, file = "my_variable.txt")`. Check that your file wrote to the folder you set as your working directory.
+
+(3) Remove variable `y` from your R workspace using the command `rm(y)`. And then load your variable back in from your file:
+
+```{r, eval=F}
+y=read.table("my_variable.txt")
+```
+
+Some other ways to view variables, data.frames etc. are:
+
+```{r, eval=T}
+head(y)
+str(y)
+```
+
+(4) Look at the help page `?read.table`. `?read.table` also gives you the help for `read.csv`, which is basically the same as `read.table` but with slightly different options. 
+
+In R, you don't always need to specify all inputs for functions. Some inputs are always required, like `x` in `write.table`. But some inputs have a default setting that will be assumed unless you tell R otherwise. For example, `append = FALSE` in `write.table`: unless you set append to TRUE, R will assume that you want to overwrite any existing file with that name, rather than appending to the end of it. 
+
+
+### More! 
+
+That's it for this tutorial. Hopefully this has given you a good introduction to R, you should now be ready to tackle our SISMID module and beyond. 
+
+If you want more R tutorials or ever get stuck when using R, remember *the internet is your friend*. There are almost endless resources available to help, from forums like Stack Overflow's to detailed tutorials. For just one resource, check out https://www.datacamp.com/community/tags/r-programming. 
+
+
+
+

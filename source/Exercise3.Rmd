@@ -1,0 +1,400 @@
+---
+title: "Exercise 3: Phylogenetic tree reconstruction"
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/jesto/sfuvault/SISMID/SISMID2023/Flu_data")
+```
+
+# Reconstructing phylogenetic trees
+
+In this exercise we will explore several approaches for constructing phylogenetic trees from timed sequence data: distance-based methods, maximum parsimony and maximum likelihood. 
+
+## Introduction: getting started
+
+1. First, load up the packages we will need for this tutorial and set the seed (so that if you repeat this analysis you'll get the same output).
+
+```{r, message=FALSE}
+library(stats)
+library(ade4)
+library(ape)
+library(adegenet)
+library(phangorn)
+library(ape)
+set.seed(8914) # You can put whatever number you want into the set.seed function
+```
+
+The beginning of this tutorial is adapted from the [Adegenet package](http://adegenet.r-forge.r-project.org)'s tutorial 'Genetic data analysis using R: introduction to phylogenetics', and we will use the same toy dataset to test out the methods. These data are US seasonal influenza (H3N2) sequences downloaded from Genbank (http://www.ncbi.nlm.nih.gov/genbank/), collected 1993-2008. The 80 sequences have already been aligned, and come from the hemagglutinin (HA) segment of the genome. 
+
+2. Download the US flu data from the module webpage. As in exercise 2, the data consist of a .fasta sequence file and a .csv file with additional metadata (year and location of sequencing).
+
+3. Read the US flu data into R. Explore the data and confirm that the 'accession numbers' (unique id numbers) in the metadata match the names of the sequences. It's always a good idea to do this quick check. 
+
+```{r}
+seqs <- read.dna(file = "usflu.fasta", format = "fasta")
+meta <- read.csv("usflu.annot.csv", header = TRUE, row.names = 1)
+
+seqs
+class(seqs)
+tail(meta)
+table(meta$year) # We see that we have 5 sequences per year 1993-2008. 
+all(meta$accession == rownames(seqs)) # Should return TRUE if the ids all match
+```
+Notice that the sequences are stored as `DNAbin` obects; this is an efficient way to store sequences using bytes instead of character vectors (which take up less memory). We have 80 sequences each of length 1701 nucleotides. 
+
+## Introduction: distance-based phylogenies
+
+In this section we will tackle 3 main tasks, for creating distance-based phylogenies:
+
+i) compute pairwise genetic distance between all 80 flu sequences
+
+ii) represent these distances on a tree
+
+iii) estimate the molecular clock
+
+Task (i): compute distances.
+
+4. Use the `dist.dna()` function in the `ape` package to compute the genetic distance between the US flu sequences. Enter `help(dist.dna)` to read about the various distance measures that can be used. 
+
+```{r}
+D <- dist.dna(seqs, model = "TN93")
+length(D) # D is of length (80*80/2 - 80) i.e. it contains the distance from each sequence to every other sequence.
+```
+Here I chose the TN93 (Tamura and Nei 1993) model which allows for: different rates of transitions (A↔G or C↔T) and transversions (all other base pair mutations), unequal base frequencies (e.g. the proportion of A is not equal to the proportion of T), and between-site variation in the rate at which substitutions occur. Choice of evolutionary model is unfortunately beyond the scope of this module, but a good resource is  [The Phylogenetic Handbook, chapter 10](https://doi.org/10.1017/CBO9780511819049). 
+
+In practice, a model such as TN93, which is fairly simple but still flexible (varying transition/transversion rates, unequal base frequencies and between-site substitution rate variation), will often be a good choice. You could try re-running this analysis with different evolutionary models to see how much impact it has on your trees.  
+
+Visualizing and summarizing the distance matrix D can be a difficult task, particularly if you have a large number of sequences. We don't have too many sequences, so a heatmap of pairwise distances shouldn't be too bad.
+
+5. Plot a heatmap of your pairwise distances
+
+```{r}
+matD <- t(as.matrix(D)) # turn D into a matrix re-shape it correctly
+matD <- matD[, ncol(matD):1]
+par(mar = c(1, 5, 5, 1)) # change the plotting margins to make it a nice square
+image(x = 1:80, y = 1:80, matD, col = rev(heat.colors(100)),
+xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+axis(side = 2, at = 1:80, lab = rownames(seqs), las = 2, cex.axis = 0.5)
+axis(side = 3, at = 1:80, lab = rownames(seqs), las = 3, cex.axis = 0.5)
+
+
+```
+
+We can see some kind of genetic structure from the heatmap (patches of red, orange, yellow), which matches the sequences being approximately ordered by time. However, it's hard to read any actual evolutionary relationships from this figure. For this, we need a phylogenetic tree...
+
+Task (ii): build trees. 
+
+Phylogenetic trees help us to understand the genetic distance between samples, as well as the overall structure of a set of samples. However, they still involve simplification of the rich information contained within sequences and therefore some information will, in practice, always be lost in translation. There are also many different approaches for building trees, and in all but the simplest case you will get a different answer depending on which method you use. 
+
+6. Build and plot a phylogenetic tree for the US flu data using the ``nj`` (Neighbour-Joining) algorithm in the ``ape`` package.
+
+```{r}
+my_tree <- nj(D)
+my_tree
+class(my_tree)
+
+plot(my_tree, cex = 0.5) # cex changes the label text size
+title("NJ tree for US flu data")
+
+# We can 'ladderize' the tree - gives the tree a nicer (in my opinion) layout - check out how the plot changes. It's exactly the same tree, just with the plotting of branches reordered
+my_tree <- ladderize(my_tree)
+plot(my_tree, cex = 0.5) # cex changes the label text size
+title("NJ tree for US flu data")
+
+
+```
+
+There are many ways to customize phylogeny plots to display additional data and/or make interpretation of the tree easier.
+
+7. Plot a version of your Neighbour-Joining tree which labels and colours tips by their collection year (included in the metadata).
+
+```{r}
+# first, remove the tips so we can manually add colourful ones: 
+ plot(my_tree, show.tip = FALSE) 
+ title("Unrooted NJ tree for US flu data")
+ # Create a custom colour palette (you can choose any colours here):
+ myPal <- colorRampPalette(c("red", "pink", "purple", "blue"))
+ # Add custom tip labels with the year
+ tiplabels(meta$year, bg = num2col(meta$year, col.pal = myPal),
+ cex = 0.5)
+ # Turn your custom colours into a nice legend with 5 categories
+ temp <- pretty(min(meta$year):max(meta$year), 5)
+ legend("topright", fill = num2col(temp, col.pal = myPal),
+ leg = temp, ncol = 2, cex=0.3)
+ # If you find that your legend is obstructing the tree, you can try changing the legend size (cex) or the legend position ("topright")
+```
+
+Notice in the above figure that the x-axis does NOT correspond to ancestry through time. This is because we have plotted an unrooted tree i.e. we did not provide the ``nj`` algorithm with a taxon defined as the 'most ancient' split in the tree to root it by. When plotting unrooted trees, it is best to clearly display them as such - to do this you can add ``type = "unrooted"`` to the plot command. In the below figure, the tree is no longer arranged left->right and so it's more obvious that you are showing an unrooted tree.
+
+```{r}
+is.rooted(my_tree)
+
+plot(my_tree, type = "unrooted", show.tip = FALSE)
+title("Unrooted NJ tree for US flu data")
+tiplabels(meta$year, bg = num2col(meta$year, col.pal = myPal),
+ cex = 0.5)
+legend("topright", fill = num2col(temp, col.pal = myPal),
+ leg = temp, ncol = 2, cex=0.4)
+
+```
+
+Since we do have years for our sequences (in the metadata) it is possible, and probably preferred, to create a rooted phylogeny. To do this, any of the oldest (1993) sequences would be a good choice of root.
+
+8. Root and plot your ``nj`` phylogeny. Remember that the sequences are roughly ordered by year, so you want to choose one of the early ones to root by (you can confirm this by looking at the object `meta`).
+
+```{r}
+# Here I root by the first sequence, but you could pick any of the first 5 (all 1993). You can also use e.g. 'out=1' to select the first sequence, rather than using the name. 
+my_tree2 <- root(my_tree, out = "CY013200", resolve.root = TRUE)
+# Ladderize again for that nice plot layout
+my_tree2 <- ladderize(my_tree2)
+
+plot(my_tree2, show.tip = FALSE, edge.width = 2)
+title("Rooted NJ tree for US flu data")
+# We add some transparency (transp) to the label boxes so we can see the ones underneath
+tiplabels(meta$year, bg = transp(num2col(meta$year, col.pal = myPal),
+0.7), cex = 0.5)
+axisPhylo()
+temp <- pretty(1993:2008, 5)
+legend("topright", fill = num2col(temp, col.pal = myPal),
+0.7, leg = temp, ncol = 2, cex=0.4)
+
+```
+
+Now that the tree is rooted we can think of the left side as 'ancestral' and the right side as 'recent'. 
+
+There are a wide range of other approaches than ``nj`` available for building phylogenetic trees in R. If you get time, check out the extension tasks section below to explore several of these alternatives. 
+
+Task (iii): estimating a molecular clock
+
+Rooted trees, such as the one we just made, can be used to estimate rates of evolution. Unlike a regular clock which measures the passing of seconds, minutes or hours, a 'molecular clock' measures the accumulation of genetic mutations. To estimate the clock rate of our rooted tree, we can perform a regression over all tips of the number of mutations from the root against the time since the root.
+
+9. Estimate the clock rate of your rooted influenza tree
+
+```{r}
+# First, we plot the regression of mutations against time:
+
+# How many mutations between each tip and the root?
+mutFromRoot <- as.matrix(dist.dna(seqs, model="N"))[1,]
+# How many years passed between each tip and the root?
+yearFromRoot <- meta$year-meta$year[1]
+plot(mutFromRoot~yearFromRoot, xlab="Years from the root",
+ylab="Mutations from the root", main="US flu data molecular clock")
+
+# Then we perform a regression of these quantities, and add to the plot. It should fit the points.
+mclock <- lm(mutFromRoot~-1+yearFromRoot)
+abline(mclock, col="blue",lwd=2)
+
+
+# What are the regression coefficients?
+summary(mclock)
+mclock$coefficients
+mclock$coefficients/ncol(seqs)
+365/mclock$coefficients
+```
+
+The coefficient of `yearFromRoot` is ~7.7. This is our estimate of the number of substitutions per year for the HA segment of the H3N2 influenza genomes. Use this result to answer the following questions:
+
+- What is the substitution rate per site per year? 
+- Therefore, how many days would you expect it to take to accumulate 1 mutation in a transmission chain? 
+- Given your answers above and the fact that the generation time of influenza is 2-3 days, do you think that reconstructing influenza transmission trees from HA sequences is a good approach?
+
+## Introduction: maximum parsimony phylogenies
+
+An alternative to a distance-based phylogeny is a maximum parsimony phylogeny.
+
+In general terms, the scientific principle of parsimony can be described as a belief that the best explanation of your data is equal to the simplest possible explanation that is consistent with that data. Maximum parsimony phylogenetic reconstruction therefore seeks trees that minimize the number of evolutionary changes (substitutions) between ancestor and descendant. This makes for a simple and easy-to-motivate methodology, that is most appropriate for sequences with low divergence i.e. most sequences are very similar to one another.  
+
+In an ideal world we would search over the space of all possible trees to find the one which is most parsimonious. However, in reality this is usually computationally impossible unless you have very few tips in your tree. Many algorithms have been designed to instead search broadly over this space in a clever way - to try and find a decently parsimonious tree without needing to check them all. These algorithms generally take a strategy of (1) pick an initial tree and calculate it's parsimony, (2) propose some small changes to the tree and calculate the new tree's parsimony, (3) keep the new tree if it leads to a better parsimony, and (4) repeat until the parsimony score stops improving. 
+
+Parsimony-based phylogenetic reconstruction is implemented in the package ``phangorn``. It requires a tree (in ape's format, i.e. a phylo object) and the original DNA sequences in ``phangorn``'s own format, ``phyDat``. We convert the data and generate a tree to initialize the method:
+
+10. Create a maximum parsimony tree for the US flu data using the package ``phangorn``. This requires an initial tree (you can use ``ape`` to make a neighbor-joining tree for this, as in the previous section) as well as the original DNA sequences, which must be converted to ``phangorn``'s ``phyDat`` format, as follows:
+
+```{r}
+seqs2 <- as.phyDat(seqs)
+class(seqs2)
+seqs2
+
+#make the initial tree
+tree_init <- nj(dist.dna(seqs, model = "raw"))
+tree_init
+
+#The parsimony of the inital tree is given by:
+parsimony(tree_init, seqs2)
+
+# Now perform the parsimony search
+tree_parsim <- optim.parsimony(tree_init, seqs2)
+tree_parsim 
+```
+
+The tree we get out will be unrooted without branch lengths. Here we find that the parsimony of the final tree is not much lower than the ``nj`` tree we started with, but that won't always be the case. We can think of this as the methods (``nj`` and ``optim.parsimony``) relatively well agreeing on the best tree, which tends to happen for datasets with low divergence. As we have here! 
+
+11. Plot your maximum parsimony tree (same approach as for the ``nj`` trees).
+
+```{r}
+plot(tree_parsim, type = "unr", show.tip = FALSE, edge.width = 2)
+title("Maximum-parsimony tree for US flu data")
+tiplabels(meta$year, bg = transp(num2col(meta$year, col.pal = myPal),
+0.7), cex = 0.5, fg = "transparent")
+temp <- pretty(1993:2008, 5)
+legend("topright", fill = transp(num2col(temp, col.pal = myPal),
+0.7), leg = temp, ncol = 2, bg = transp("white"), cex=0.3)
+```
+
+
+## Introduction: maximum likelihood phylogenies
+
+Our final phylogenetic tree building approach is maximum likelihood. The idea here is very similar to maximum parsimony, in that we try to search over the space of all possible trees in a smart way to find the 'best' one. Except, this time we want to maximize some pre-defined likelihood function rather than maximizing parsimony.
+
+A big benefit of this approach is that the likelihood to be maximized can be defined by any model of sequence evolution we choose, which makes it much more flexible. As well as optimizing over the space of trees, we can also simultaneously optimize over the parameters of our chosen model - to find the best tree and the best model parameters at the same time. A drawback, however, is that this means we need to decide what is the most appropriate model to use.
+
+A common choice is the GTR + $\Gamma$(4) model (GTR = global reversible time). In this model, all possible substitutions (all transitions, transversions) are allowed to have different rates as well as the substitution rate being allowed to vary across sites. It is therefore a very flexible model. 
+
+Like maximum parsimony, maximum likelihood tree reconstruction can be performed with the ``phangorn`` package. Again, we require an initial tree and the DNA sequences. 
+
+12. Create an initial tree for the maximum parsimony analysis from the US flu data using the package ``phangorn``.
+
+```{r}
+# phyDat format, same as before:
+seqs2 <- as.phyDat(seqs)
+
+#make the initial tree
+tree_init <- nj(dist.dna(seqs, model = "TN93"))
+
+#To begin the optimization procedure, we need to know the likelihood of the initial tree
+pml(tree_init, seqs2, k = 4)
+```
+
+At this point, you may notice that the likelihood of your initial tree is `NaN`. This needs to be fixed, but isn't a big problem. It is caused by missing data (missing or error bases) in our original sequences. So, we should remove them before continuing (even if you didn't get a `NaN` likelihood, you should remove them so they aren't a problem later!). 
+
+13. Find the location of the missing bases in the data. Plot them, and remove them. 
+
+```{r}
+# First, find the location of the missing/incorrect bases (anything that isn't a,t,g,c)
+na.posi <- which(apply(as.character(seqs), 2, function(e) any(!e %in%
+                                                                 c("a", "t", "g", "c"))))
+na.posi
+
+# Plot them
+temp <- apply(as.character(seqs), 2, function(e) sum(!e %in% c("a", "t", "g", "c")))
+plot(temp, type = "l", col = "red", xlab = "Position in HA segment of sequence",
+ylab = "Number of NAs")
+
+# Remove them
+seqs3 <- seqs[, -na.posi]
+seqs3
+
+# Aha! Looks much better now. Before:
+table(as.character(seqs))
+# After:
+table(as.character(seqs3))
+
+# Don't forget! Change to phyDat format
+seqs4 <- as.phyDat(seqs3)
+
+```
+It turns out most of the missing bases are towards the beginning of the alignment: this is usual. 
+
+Now we're ready to search for a maximum likelihood tree.
+
+14. Find a maximum likelihood phylogeny for the US flu data, using ``optim.pml``. Remember to start with a new initial tree, using your new sequences with missing data removed. 
+
+```{r}
+#Make the initial tree
+tree_init <- nj(dist.dna(seqs3, model = "TN93"))
+#Find its (log) likelihood
+lh_init <- pml(tree_init, seqs4, k = 4)
+lh_init
+
+# Find the max. likelihood tree. We optimize the tree (optNni = TRUE), the base frequencies (optBf=TRUE), the substitution rates (optQ=TRUE) and assume a gamma distribution for the variation in substitution rates across sites (optGamma = TRUE).
+fit <- optim.pml(lh_init, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
+fit
+names(fit) # what are the components of the results object?
+```
+
+The results object (here named ``fit``) contains not just the optimal tree (``fit$tree``), but also other useful info. Take some time to explore these.  
+
+Before choosing this as our favourite maximum likelihood tree, we can confirm that the optimized tree is better than the initial one using ANOVA and AIC:
+
+```{r}
+# ANOVA
+anova(lh_init, fit)
+
+# Compare AIC
+AIC(lh_init)
+AIC(fit)
+
+```
+
+Indeed, ANOVA has a good p-value and the AIC of the new tree is better than the initial one. Great news! We have obtained an improved tree. 
+
+14. Lastly, plot (and save) your maximum likelihood phylogeny for the US flu data (just like for the other methods).
+
+```{r}
+tree_ml <- root(fit$tree, 1)
+write.tree(tree_ml, file = "myflutree.nwk")
+
+
+plot(tree_ml, show.tip = FALSE, edge.width = 2)
+title("Maximum-likelihood tree for US flu data")
+tiplabels(meta$year, bg = transp(num2col(meta$year, col.pal = myPal),
+0.7), cex = 0.5, fg = "transparent")
+axisPhylo()
+temp <- pretty(1993:2008, 5)
+legend("topright", fill = transp(num2col(temp, col.pal = myPal),
+0.7), leg = temp, ncol = 2, cex=0.3)
+
+```
+
+Overall, we find that for this data set, all methods return fairly similar trees. Our data is relatively simple, with few samples and low diversity, so this is not unexpected. For larger and more complex data, you will likely find much more stark differences between different methods. It's usually a good idea to test out a few different tree building approaches before drawing any conclusions about your data. 
+
+**How do we choose between methods?**
+
+- **Distance based methods.** *Pros:* the fastest method, and fairly flexible too (can use different distance measures). *Cons:* no real way to compare between different distance-based methods and find the 'best'.
+
+- **Maximum parsimony.** *Pros:* intuitive, works well for data with small amounts of genetic variation. *Cons:* simplistic evolutionary model, computationally intensive, works poorly for data with large amounts of genetic variation or where mutation rates vary across the tree. 
+
+- **Maximum likelihood.** *Pros:* very flexible - can use any model of evolution, can perform model selection, usually works well. *Cons:* computationally intensive.
+
+
+A popular branch of methods for tree reconstruction that we have not covered here are Bayesian methods - such as [BEAST](https://beast.community) and [BEAST2](https://www.beast2.org/). These can be seen as an extension to maximum likelihood methods, except that instead of finding the single tree with 'best' likelihood, they seek samples of trees and model parameters which are most consistent with both the data and any prior knowledge you might have of the tree or parameters. Since the focus of our module is transmission inference and these methods are slightly more complex, we will not cover them here. However, these are very popular methods so worth a look if you are interested in this area. 
+
+# Your own analysis: reconstructing TB and SARS-CoV-2 phylogenetic trees
+
+1. **Use what you’ve learned from this tutorial to build phylogenies for the Roetzer TB genomes and/or the SARS-CoV-2 genomes from exercise 2**  
+- Try building phylogenies using different methods, as in step 1. 
+- How different do the phylogenies look?
+
+Remember that we don't expect you to finish the whole tutorial for all 3 datasets within this single time slot. But hopefully you can make a good start, ask lots of questions, and then continue later if you want to. 
+
+
+## Extension tasks and additional reading
+
+A. The phylogenies we built above were not linked to time, though generally in transmission inference we have a time point associated with each sequence (e.g. the time of sampling). Check out the extension exercise linked from the module webpage for a tutorial on building timed trees.
+
+B. Here are several alternatives to ``nj`` for building phylogenetic trees:
+
+- ``bionj`` (``ape`` library): an improved version of Neighbor-Joining.
+
+- ``fastme.bal`` and ``fastme.ols`` (``ape`` library): minimum evolution algorithms.
+
+- ``hclust`` (``stats`` library): classical hierarchical clustering algorithms including
+single linkage, complete linkage, UPGMA, and others.
+
+Test these packages for building a US flu data phylogeny and compare your results to that you obtained using ``nj``. (Remember to look up the documentation for each package using e.g. ``?bionj``). How different do your phylogenies look? Are the branches longer/shorter/differently clustered in some methods? See point B below for more formal methods for comparison of trees. 
+
+C. Development of methods for comparison of phylogenetic trees is an active area of research. Investigate the R packages ape and treespace, or look up alternatives, for ways to compare trees, and apply these to your TB/COVID trees. Here is a document about treespace: https://cran.r-project.org/web/packages/treespace/vignettes/introduction.html
+
+
+
+
+
+
+
+
+
+
+ 

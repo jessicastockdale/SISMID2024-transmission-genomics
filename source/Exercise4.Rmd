@@ -1,0 +1,352 @@
+---
+title: "Exercise 4: TransPhylo for outbreak reconstruction"
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_knit$set(root.dir = "C:/Users/jesto/sfuvault/SISMID/SISMID2022/TB_data")
+```
+
+# Reconstructing transmission pathways
+
+In this exercise we use TransPhylo to reconstruct transmission trees. 
+
+
+## Introduction: getting started
+
+1. Load up the packages we will need for this tutorial and set the seed (so that if you repeat this analysis you'll get the same output).
+
+```{r, message=FALSE}
+library(TransPhylo)
+library(ape)
+library(coda)
+set.seed(0) # You can put whatever number you want into the set.seed function
+```
+
+## Introduction: simulating outbreaks in TransPhylo
+
+First, we are going to use TransPhylo's outbreak simulator to simulate a small outbreak. In this simulation we will know exactly who infected whom. When we then use TransPhylo to reconstruct the transmission pathway (pretending that we don't already know it), we can compare the results against the truth. 
+
+2. Define values for the 5 input parameters required to simulate outbreaks in Transphylo. You can choose the same values as used below, or pick your own. The parameters are:
+
+- N~e~g (`neg`): the effective within-host population size multiplied by the generation time
+
+- `off.r`: the basic reproduction number (used as the mean of the negative binomial offspring distribution)
+
+- `w.mean` and `w.std`: the mean and standard deviation of the gamma distributed generation time. This will also be used for the sampling time distribution unless we define `ws.mean` and `ws.std`. Alternately, we can define these distributions through a `w.shape` and `w.scale`. 
+
+- `pi`: the density of sampling.
+
+```{r}
+neg=100/365 # about a third of a year
+off.r=5 # R0=5 secondary cases, on average, caused by an infectious case
+w.mean=1 # 1 year
+w.std=0.3 
+pi=0.25 # 1/4 cases are sampled
+# These parameter values are appropriate for a disease like TB in which people are infectious for a long time. For something like influenza or SARS-CoV-2 you would want a much shorter generation time and Neg, on a scale of days. 
+```
+
+3. Simulate and plot an outbreak with your chosen parameters that begins in 2005 and stops being observed in 2008. 
+
+```{r}
+simu <- simulateOutbreak(neg=neg,pi=pi,off.r=off.r,w.mean=w.mean,
+                         w.std=w.std,dateStartOutbreak=2005,dateT=2008)
+simu
+plot(simu)
+```
+
+If you've chosen your own parameter values or used a different seed, you may want to keep simulating or tweak your parameters until you get an outbreak with say 5-20 sampled cases (enough to work with, but not so many that it will be hard to interpret the results).
+
+The main result of the outbreak simulation is a coloured phylogeny as above. This shows the evolution of the pathogen through time, as in a regular timed tree, but also paints on colours to show transmission from host-to-host. 
+
+Each host is represented by a unique colour - for example host 6 is a light blue/green. We can trace back that host 6 was infected by host 2 (orange) in early 2007 (infections are shown with a red star). Similarly, host 1 is red. Host 1 was infected in early 2006 by an unsampled host who is the root of this outbreak (the pink colour is an unsampled host, because it does not have a labelled tip). Host 1 infected an unsampled host (dark blue) who then went on to infect host 5 (green). 
+
+4. Extract and plot the transmission tree, separately from the phylogeny. There are 2 available ways to plot this:
+
+```{r}
+# Extract the transmission tree
+ttree<-extractTTree(simu)
+
+# Plot type 1
+plot(ttree)
+# Plot type 2
+plot(ttree,type='detailed',w.shape = (w.mean/w.std)^2, w.scale = (w.std^2)/w.mean)
+```
+
+The first plot includes just the times of transmission events between hosts (black = sampled, white = unsampled), without including phylogeny branching events. The second more detailed plot shows each host (sampled and unsampled) as a row. Horizontal lines display when that host was thought to be infectious (with lowered opacity showing uncertainty around the start and end of their infectious period). Arrows between hosts represent infection occurring and red dots represent a host being sampled. 
+
+5. Extract and plot the phylogeny, separately from the transmission tree. This should look just like the initial figure, but without the colours representing transmission or any indication of unsampled hosts.
+
+```{r}
+# Extract the phylogeny
+ptree<-extractPTree(simu)
+# Abd plot it
+plot(ptree)
+```
+
+In the previous exercise we got lots of practice plotting phylogenies using the `ape` package. 
+
+6. Convert your TransPhylo phylogeny into `ape`'s `phylo` format.
+
+```{r}
+p<-phyloFromPTree(ptree)
+class(p)
+plot(p)
+axisPhylo(backward = F)
+```
+
+6. Save your tree as a Newick format file. 
+
+```{r}
+write.tree(p,'my_simulated_tree.nwk')
+```
+
+A final important thing to remember when working with TransPhylo is that, although the phylogeny is measured in years as we can see from our plots, time is measured only relatively to the date of the last sample in our outbreak. When we save our phylogeny, this time information is lost and we keep only the relative distance between samples. If we want to use this tree again, it is therefore important to know the date the last sample was taken
+
+7. Allocate a variable to the date of the last sample.
+
+```{r}
+last_date <- dateLastSample(simu)
+last_date
+```
+## Introduction: inferring the transmission tree from our dated phylogeny
+
+In this section we are going to pretend that we don't actually know who infected whom in our simulated outbreak, and instead use TransPhylo to infer this. We'll start with our phylogeny `p`, which you'll recall we removed all transmission information from. 
+
+```{r}
+plot(p)
+axisPhylo(backward = F)
+```
+
+Unlike Outbreaker which inferred transmission directly from genomes and sampling dates, TransPhylo requires an input phylogenetic tree. Usually we will use our favourite phylogenetic tree building method as in exercise 2 to get a phylogeny, and then we are ready to run TransPhylo. A recent improvement to TransPhylo means that you can now input a whole set of potential phylogenies rather than having to pick just one - this lets you build uncertainty in your tree into the analysis. We won't be covering that in this tutorial, but feel free to ask us about it if you are interested. 
+
+As mentioned in the previous section, this phylogeny is dated relatively and not absolutely. So, we need to tell TransPhylo when the final sample was taken so that it can place the phylogeny at the right point in time. 
+
+8. Re-attach the date of the last sample to your phylogeny
+
+```{r}
+ptree<-ptreeFromPhylo(p,dateLastSample=2007.978)
+plot(ptree)
+```
+
+Although this seems a little circular for this tutorial, because you already had the object `ptree` before, remember that in a regular (unsimulated) analysis you would begin this process here at step 8. 
+
+TransPhylo needs 4 things to run the transmission inference: the phylogenetic tree we already have, an assumed generation time distribution, the date at which observation of the outbreak stopped, and the number of iterations to run the MCMC algorithm for. 
+
+In the simulation we used generation time parameters (mean = 1 year, standard deviation = 0.3 years), so we can give TransPhylo the best chance of success by inputting those correct values here. In a real-data scenario you won't know the true generation time of course, so you should use something sensible for the pathogen you are working with (perhaps by looking up estimates people have obtained for that pathogen using contact tracing or other data). Similarly for the time outbreak observation ended, in our simulated outbreak we used `dateT=2008` so we can input that here. For real data, you should use whatever date you stopped observing your outbreak of interest. If you're doing a real-time genomic epidemiology investigation, that date might be today. If you're absolutely confident that your outbreak was over upon the last sampled case in your data set, you can set this date to `Inf` (infinity) - this is useful when you are analyzing old outbreaks in which you know there was no more transmission. Inputting a `dateT` allows TransPhylo to account for the fact that individuals who became infected just before T have a lower probability of being sampled.
+
+9. Define the required parameters to run TransPhylo.
+
+```{r}
+w.mean=1
+w.std=0.3
+dateT=2008
+```
+
+Now we are ready to run our transmission inference. 
+
+10. Run TransPhylo to reconstruct transmission in your simulated outbreak. Try using 1000 MCMC iterations for now, this should not take long to run.  
+
+```{r eval=FALSE}
+res<-inferTTree(ptree,mcmcIterations=1000,w.mean=w.mean,w.std=w.std,dateT=dateT)
+```
+
+```{r eval=T, include = FALSE}
+res<-inferTTree(ptree,mcmcIterations=1000,w.mean=w.mean,w.std=w.std,dateT=dateT)
+```
+
+## Introduction: checking convergence of TransPhylo
+
+Just like in the Outbreaker analysis which also used MCMC, we need to check how well our model converged. 
+
+11. Generate trace plots of your MCMC output
+
+```{r}
+plot(res)
+```
+
+Again like Outbreaker, we need these trace plots to look like stable fuzzy caterpillars in order for our results to be reliable. We see that for the input parameters we chose, they are not. This implies that we should rerun ``inferTTree`` with a higher number of `mcmcIterations`. 
+
+Another approach for assessing MCMC convergence/mixing uses the `CODA` package to calculate the 'effective sample size' (ESS) of our MCMC output. In short, the effective sample size tells us how many independent samples of each parameter were obtained. This will be less than the actual number of samples, because successive steps in the MCMC are correlated. 
+
+12. Calculate the ESS for each parameter in TransPhylo
+
+```{r}
+mcmc=convertToCoda(res)
+effectiveSize(mcmc)
+```
+A general guide is that the ESS of each parameter should be at least 100. Clearly we have not achieved that here! (Note: at default setting TransPhylo does not estimate the parameter `off.p`, which is why it is has ESS 0. So you only want `pi`, `neg` and `off.r` to be >100.)
+
+13. Re-run TransPhylo with more iterations until you achieve good MCMC mixing (or until you get bored and decide to move on anyway :) )
+
+```{r eval=FALSE}
+res<-inferTTree(ptree,mcmcIterations=10000,w.mean=w.mean,w.std=w.std,dateT=dateT)
+```
+
+```{r eval=T, include = FALSE}
+res<-inferTTree(ptree,mcmcIterations=10000,w.mean=w.mean,w.std=w.std,dateT=dateT)
+```
+
+```{r}
+res
+plot(res)
+mcmc=convertToCoda(res)
+effectiveSize(mcmc)
+```
+
+Looks like 10,000 is still not quite enough. In a real analysis we would want to run at least 100,000, but since this is just an example let's move on. 
+
+## Introduction: interpreting the output
+
+14. From your MCMC samples in `res`, plot the most representative (the medoid) coloured-in tree and corresponding transmission tree. Depending on the number of MCMC iterations you used to generate `res`, this might take a while to run. If you find it is taking too long, feel free to return to using `mcmcIterations=1000`. 
+
+```{r}
+# Find the medoid tree
+med=medTTree(res)
+# Plot it
+plot(med)
+
+# Extract and plot the transmission tree
+ttree=extractTTree(med)
+plot(ttree,type='detailed',w.shape = (w.mean/w.std)^2, w.scale = (w.std^2)/w.mean)
+```
+
+As in Outbreaker, it is also possible to define a burn-in period in TransPhylo, to remove the unstable period at the beginning of the MCMC chain. This is controlled with the `burnin` input to `medTTree` for example, defining `burnin=0.4` will discard the first 40% of samples as burn-in. 
+
+Recall that since this is a simulated outbreak, we know the true transmission tree and can compare it to the one we inferred. Take a look at the true tree alongside the medoid tree - what are the similarities and differences? See the 'Extension tasks' section at the end of the tutorial for more on comparing these trees. 
+
+```{r}
+par(mfrow=c(1,2),oma = c(0, 0, 2, 0))
+plot(simu)
+plot(med)
+mtext("Comparison of true tree (left) and medoid tree (right)", outer = TRUE, cex = 1.5)
+```
+
+In a real outbreak we wouldn't have the true tree to compare to of course, but we could at this point dive into the details of who infected whom and see if any of our transmission pairs are especially meaningful - for example did any live, work or socialize together? With sufficient metadata, we could also investigate if the hosts inferred to have infected the most people had anything in common - were they young, old, very social, in high-contact employment? In addition to looking at the transmission tree, we are also able to make a variety of plots exploring other aspects of the analysis...
+
+15. Plot a matrix of the probability of direct transmission between all pairs of individuals in the outbreak
+
+```{r}
+mat=computeMatWIW(res)
+lattice::levelplot(mat,xlab='',ylab='')
+```
+
+From this plot we see high certainty in the transmission from host 2 → host 6. The other pairs have lower posterior probability, but we quite often find 2 → 3 as well (even though this link was not in the medoid tree).
+
+16. Plot a similar matrix, showing how many intermediates there were inferred to be in the transmission chain between each pair of individuals
+
+```{r}
+mat=computeMatTDist(res)
+lattice::levelplot(mat,xlab='',ylab='')
+```
+
+The diagonal of these matrices will always be 0, since hosts cannot infect themselves.
+
+17. Make a plot of sampled and unsampled cases over time, a plot of the distribution of estimated generation times, and a plot of the distribution of estimated sampling times.
+
+```{r}
+a=getIncidentCases(res,show.plot = T)
+
+a=getGenerationTimeDist(res,show.plot = T)
+
+a=getSamplingTimeDist(res,show.plot = T)
+```
+
+We infer that most unsampled cases occurred back towards the root of the tree. The generation and sampling distributions are fairly smooth and unimodal. Can you adapt this plot to check how well your estimates match the distributions you simulated from?
+
+18. Lastly, make 2 plots showing the distribution of inferred infection time for individuals '1' and '3' and the offspring distribution for individuals '1' and '3'. You could also make these plots for any of the other hosts.
+
+```{r}
+a=getInfectionTimeDist(res,k=c('1','3'),show.plot = T)
+
+a=getOffspringDist(res,k=c('1','3'),show.plot = T)
+```
+
+The model thinks that '1' was infected during 2006 and '3' during 2007 or just prior. The most likely conclusion is that neither case infected anyone else, but there is a significant chance that '1' infected one other case, according to the model. 
+
+# Your own analysis: reconstructing transmission in TB and SARS-CoV-2 outbreaks. 
+
+1. **Use TransPhylo to infer a transmission tree for the Roetzer TB data and/or the SARS-CoV-2 data we have been working with in exercises 2 and 3.**  
+
+TransPhylo requires a **time-calibrated phylogeny** as input i.e. a phylogeny where the ‘x-axis’ is time. The phylogenies you generated in exercise 3 were not timed, but we have provided a timed phylogeny for the Roetzer TB samples (roetzer2013_datedtree.nex) and for the COVID-19 samples (covid_datedtree.nex) in the data folders you downloaded for the previous exercises. Full details of how the Roetzer phylogeny was built using the BEAST software are available in the following paper, introducing TransPhylo: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5850352/. Thank you to Maryam Hayati from our group at SFU for building the SARS-CoV-2 phylogeny for this course.
+
+You can read in nexus (.nex) files to R using the command `mytree <- read.nexus(file = "filenamehere.nex")` from the `ape` package.  
+
+
+## Hints, tips and common issues: 
+
+**Dates:** Recall that TransPhylo requires the date the last sample was collected, `dateLastSample`, to build the `ptree` phylogeny object. You can get this from the metadata file which has dates for each sample. 
+
+You will also need the date observation ceased, `dateT`, to run the inference. We would advise setting `dateT` to several weeks after the last sample in your dataset. In reality, it was probably more like days after the last sample, but if we set it as such TransPhylo will place many unsampled cases close to the tips in our tree. If you are sure the outbreak was over you can set `dateT = Inf` - but that is not the case here, we know there were many more COVID cases in the UK for example!
+ 
+As usual, getting the time scale correct can be one of the trickiest parts. The phylogenies we have provided are set up to use years for the TB analysis and days for COVID analysis. TransPhylo requires dateT and dateLastSample entered as **decimal numbers**. E.g. January 2nd 2001 = 2001.0027 (2001 and 1/365th) if you are working in years say. You can create this from a date objects using the decimal_date() function in the lubridate package e.g. `decimal_date(as.Date("2001-01-02"))` = 2001.003.
+
+* For the TB data you can do exactly as above using `decimal_date(enter-here-the-last-date-in-the-dataset)` 
+
+* For the COVID data instead of converting years to days, note that all we really care about for TransPhylo to run is the length of time the outbreak occurred over, not the actual dates. Looking at the metadata, we can see that the earlist sample was collected 19 days before the final one. Therefore, if we set `dateT = 19`, we are effectively labelling the first sample date as 'day 0'. 
+
+
+
+**Distributions:**
+You can use the same generation time/sampling time distributions as suggested in exercise 2:
+
+* SARS-CoV-2:  gen. time ~ gamma(mean = 5.2 days, sd = 1.72) days, and samp. time ~ gamma(mean = 5.2 days, sd = 1.72) days  
+* TB: gen. time ~ gamma(mean = 4.3, sd = 3.8) years, and samp. time ~ (mean = 2.75, sd = 2.6) years 
+
+ 
+**General:**
+In general, when we input phylogenies to TransPhylo we should ensure they have no negative branch lengths or multifurcations (a node which splits into >2 branches, to form a non-binary tree). Before creating your `ptree` from a `phylo` object named `phy`, say, you can do this with:
+```{r, eval=F}
+phy <- multi2di(phy) # remove multifurcations
+phy$edge.length <- pmax(phy$edge.length,1/365) # make sure all branch lengths are at least 1 day long (if our time scale is years)
+```
+
+**MCMC:**
+You might need many more iterations for the real datasets than the 1000 we started with in the tutorial. Inspect the MCMC trace plots and calculate the ESS as in the tutorial to test for convergence. More iterations => better results, but slower to run! Of course, for the purposes of this exercise you don't want to be waiting hours for the code to run, so feel free to continue on to the results analysis even if you don't get good mixing of the MCMC.
+
+
+
+
+
+## Extension tasks and additional reading
+
+A. In this tutorial we visually compared our inferred transmission tree to the true simulated tree:
+```{r}
+par(mfrow=c(1,2),oma = c(0, 0, 2, 0))
+plot(simu)
+plot(med)
+mtext("Comparison of true tree (left) and medoid tree (right)", outer = TRUE, cex = 1.5)
+```
+
+We could also compare these trees with various numeric measures. The underlying phylogenetic tree topology is the same, so tools such as `treespace` that was mentioned in exercise 3 won't help here. The main differences in our trees comes from the location of the red stars, who infected whom, and the number/location of unsampled individuals. 
+
+Can you some up with some ways to measure the difference between these trees? Here are some suggestions you could explore and code up:
+
+* What is the difference in the number of unsampled intermediates in the true tree and the inferred tree?
+
+* How well did we infer the location of the unsampled intermediates? E.g. are they all clustered in one area or spread evenly throughout the tree. 
+
+* How well did we infer the infection times of the sampled individuals?
+
+* For what proportion of cases did we infer the right infector?
+
+* For what proportion of cases did the top 3 infectors include the true infector?
+
+To answer these questions, the script `transphylo_extras.R` which is available on the module webpage has some useful functions: `getInfectionTimes()`, `getGenerationTimes()`, `getTimesToSampling()` and `getNumberUnsampled()` all help to extract information from your transmission tree. 
+
+B. If you have them saved, load up the transmission networks you inferred with outbreaker2 for the TB and/or COVID-19 datasets. How different are they to those you inferred here in TransPhylo?
+
+C. Try visualising your inferred transmission tree(s) using [VisNetwork](https://datastorm-open.github.io/visNetwork/) - a network visualisation package in R. Some sample code is available in the transphylo_extras.R script. This also contains various extra functions for visualising the output of TransPhylo  - try these out on any of your inferred transmission trees. 
+
+D. If you're interested to learn about simultaneous inference of multiple transmission trees from a set of phylogenetic trees in TransPhylo, you can try out [this tutorial](https://xavierdidelot.github.io/TransPhylo/articles/multitree.html). 
+
+
+
+
+
+
+
+
+ 

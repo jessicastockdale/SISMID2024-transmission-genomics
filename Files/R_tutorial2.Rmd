@@ -1,0 +1,75 @@
+---
+title: "SISMID 'Reconstructing transmission with genomic data': Installation and preparation instructions"
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Things to install in advance of SISMID
+
+Here we will walk you through installing the packages we will be using during the module. Please work through this tutorial in advance of the course. If you have any problems, feel free to contact us through the SISMID Slack channel. 
+
+## Update R and RStudio
+
+If you have recently installed or updated R and RStudio, you can skip this section. 
+
+If you suspect you may have an older version of R/RStudio, it is a good idea to update it to ensure that all packages work smoothly.
+
+**1. Verify R version**: Open RStudio. At the top of the Console you will see session info. The first line tells you which version of R you are using. Or, enter the command `R.version.string` to print out the R version instead.
+
+Do you have R version 4.1.0 OR LATER installed?
+
+No - follow the instructions below for “Updating R”
+
+Yes - Great! Move on to step 3 “Updating RStudio and existing packages”
+
+**2. Updating R**
+
+**Windows**
+To update R on Windows, we can use the package `installr`. 
+
+Install and load installr: run `install.packages("installr")` and then `library(installr)`.
+
+Use this package to update R: run `updateR()`. This should inform you that there is a new version of R to download. Click 'OK', then when asked if you want to read the news about the new version you can say 'No'. Finally, it will ask if you want to install the new version of R to which you can click 'Yes'. Follow through the installation wizard (you can leave everything as default).
+
+Note: if you ran installr from RStudio you may get a message that is recommended to run it instead from the basic R program. Personally, I have always ignored this warning and run from within RStudio anyway, and have never had any problems. But, you can quit RStudio and install from within R instead if you want. 
+
+The next time you open RStudio, you may get some windows asking if you want to port your old packages over to the new version of R. Click 'Yes' and wait for it to run. 
+
+**Mac**
+On Mac, you can download and install the newest version of R from https://cloud.r-project.org/bin/macosx/. Right under the heading "Latest release:" click the link "R-some_version.pkg" to download it.
+
+Once the file is downloaded, double-click it to install. Follow through the dialogs with "Next". 
+
+When you next open RStudio, it will automatically use the updated version of R. 
+
+**3. Updating RStudio and existing packages**
+
+Launch RStudio and go to Help -> Check for Updates to install a newer version of RStudio if it is available. 
+
+To update any packages you already have installed, go to Tools -> Check for Package Updates. If updates are available, Select All, and click Install Updates.
+
+
+## R packages
+
+We will be using several other R packages in this module, **install these in advance by entering the following commands in the R console**: 
+
+```{r, eval=FALSE}
+install.packages("TransPhylo") # Inference of transmission trees from dated phylogenies
+install.packages("ape") # "Analyses of Phylogenetics and Evolution - Functions for reading, writing, plotting, and manipulating phylogenetic trees"
+install.packages("outbreaker2") # "A platform for reconstructing densely sampled outbreaks using epidemiological and genetic data"
+install.packages("adegenet", dep = TRUE) # "Exploratory Analysis of Genetic and Genomic Data" toolset
+install.packages("phangorn", dep = TRUE) # "Phylogenetic Reconstruction and Analysis - for estimation of phylogenetic trees and networks using Maximum Likelihood, Maximum Parsimony, distance methods and Hadamard conjugation"
+install.packages("Hmisc") # Lots of useful data analysis functions
+install.packages("lubridate")# "Functions to work with date-times and time-spans"
+install.packages("visNetwork") # Interactive network visualization
+install.packages("EpiEstim") # "Estimate Time Varying Reproduction Numbers from Epidemic Curves'
+install.packages("coda") # function for summarizing, plotting and testing convergence of MCMC
+
+```
+## That's it!
+
+We look forward to meeting you at SISMID. 

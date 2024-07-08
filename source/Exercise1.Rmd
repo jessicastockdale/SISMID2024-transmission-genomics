@@ -1,0 +1,46 @@
+---
+title: "Exercise 1: An exploratory introduction to reconstructing paths of transmission"
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Foot and Mouth disease in Australian livestock
+
+In your groups, you’ll be exploring an example of the kind of dataset we might use for transmission inference. This is a simulated outbreak of Foot and Mouth disease in Australian livestock herds.
+
+This is an open-ended task, and we’re happy for you to approach it any way you choose. You could try to recreate the transmission network/tree by hand, sketch out a plan or some pseudo-code for an automated way to do this, start to code up some analysis, or something else entirely. The important thing here is to start thinking about possible approaches and difficulties for transmission inference, and how we can combine various sources of information to best predict the route an outbreak took.
+
+You have ~1 hour for this exercise. Then, for the final ~20-25 minutes we will regroup for a wrap-up. At least 1 member of your team should be prepared to give a 3 minute summary of your group’s work.
+
+# First steps
+1. Introduce yourselves.
+2. Assign roles from the list below - these don’t have to be formal but might help keep things on track.
+3. Download the data from the main module webpage
+4. Open up the data (in R, in a text reader, in Excel, wherever you prefer) 
+5. Get exploring! The data dictionary file is a good place to start.
+
+# Roles:
+Moderator - helps facilitate the conversation; a “project manager” 
+
+Timekeeper - keeps the group on track by being mindful of the time; lets everyone know when they need to wrap up or move on
+
+Note Taker - takes record of the group’s discussion.
+
+Reporter - when we regroup, the reporter will take the lead in summarizing your group’s discussion/progress. (It might be helpful to get the note taker to give you their notes!)
+
+Diagnostician -  thinks about the problems and limitations of the data/analysis, and how we might combat these.
+
+# Key questions you might ask
+- You have several pieces of information available to you about each infected herd. Which are more/less informative? How should we combine them? How should we weight them?
+- How could we visualize the data, and the inferred chains of transmission?
+- What are the strengths of this approach, and in what ways are we limited?
+- What other information would be helpful for inferring transmission? 
+ 
+ 
+ 
+ 
+ 

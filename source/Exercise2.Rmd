@@ -1,0 +1,194 @@
+---
+title: "Exercise 2: 'outbreaker2' for outbreak reconstruction"
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reconstructing transmission pathways
+
+In this exercise we will use the first of several R packages for reconstructing transmission pathways. This will be `outbreaker2', as introduced in the previous lecture. 
+
+## Introduction: getting started
+
+1. First, load up the packages we will need for this tutorial and set the seed (so that if you repeat this analysis you'll get the same output).
+
+```{r, message=FALSE}
+library(ape) # reading, manipulating sequences
+library(outbreaker2) # the main reconstruction package
+library(Hmisc) # general data science package - we use for dealing with dates
+library(lubridate) # also for dealing with dates
+library(EpiEstim) # primarily a package for estimation of reproduction numbers. We want a small function for defining our generation time
+set.seed(1) # You can put whatever number you want into the set.seed function
+```
+
+The outbreaker2 package includes `fake_outbreak` - a small simulated outbreak perfect for trying out the package. 
+
+2. Explore the contents of the `fake_outbreak` object, and make sure you understand what each element is. (If you're not sure about any of them, try `help(fake_outbreak)`). Visualize some elements of the data if you wish. 
+
+```{r}
+str(fake_outbreak)
+counts <- table(fake_outbreak$onset) # this function makes a table of how many instances of each onset time there are 
+barplot(counts, xlab="Onset time", ylab = "Number of cases", main="Fake outbreak symptom onset times", col="tomato1")
+```
+
+## Introduction: Running outbreaker2 on the fake outbreak
+
+The main function of the outbreaker2 package is `outbreaker`, this runs the transmission reconstruction. `args(outbreaker)` prints the possible inputs for the `outbreaker` function.
+
+```{r}
+args(outbreaker)
+```
+
+ In this tutorial, we will work with the default underlying `outbreaker` model, as introduced in the previous lecture. This means that all we need to provide is the data, `outbreaker_data()`, and we can leave the priors (`custom_priors()`), likelihood (`custom_likelihoods()`) and moves (`custom_moves()`) at their default settings. `create_config()` controls various aspects of the MCMC computation: we'll leave that as default for now too. 
+
+3. Run outbreaker2 on the fake outbreak with the default settings. First, we use the `outbreaker_data()` function to format our `fake_outbreak` (check out `help(outbreaker_data)`), then we feed that object into `outbreaker`. 
+
+```{r}
+fake_data <- outbreaker_data(dna = fake_outbreak$dna, dates = fake_outbreak$sample, ctd = fake_outbreak$ctd, w_dens = fake_outbreak$w)
+
+result <- outbreaker(data = fake_data) # This should take about a minute to run
+```
+
+4. Take a look at the results, here in an object labelled `result`
+
+```{r}
+class(result) # the results are stored in a type of data.frame called outbreaker_chains
+result
+```
+
+Each row of `result` contains a single step from the MCMC chain, that is, a single sample of each parameter. At each step, `result` returns the value of the log posterior distribution `post`, the log likelihood `like`, the log prior `prior`, and all parameters/augmented data. The inferred sampled ancestor `alpha`, date of infection `t_inf` and number of generations between the case and their sampled ancestor `kappa` of each case in the outbreak is also reported at each step. (`str(result)` will show you all elements of `result`).
+
+## Introduction: Analysis and visualization of results from the fake outbreak
+
+Before we visualize the actual transmission pathways we have inferred, it is a good idea to take a look at the mixing of the MCMC algorithm to ensure our results are trustworthy.  
+
+One way to do this is to look at trace plots of the MCMC chain
+
+5. Use `plot(result)` to show a trace plot of the log-posterior values. 
+
+```{r}
+plot(result)
+```
+
+You should see something like this, a transient stage at the very start of the chain followed by something bumpy but relatively stable. If you used a different seed than me, your trace plot will look a bit different: that's ok. We used 10,000 iterations here, but in a full analysis we would use more, in part to minimize the effect of the seed on the results. 
+
+6. You can also use `plot` to get trace plots of any other column in `result`. Try a few with e.g. `plot(result, "prior")`, `plot(result, "t_inf_29")`...
+
+```{r}
+plot(result, "prior")
+plot(result, "t_inf_29")
+```
+
+"t_inf_29" (the time of infection of case 29) doesn't look so well mixed - we can see discrete jumps between different states. This is in part because the algorithm might not update 29's infection time at each iteration - this may be a necessary compromise for computation time's sake. It suggests to me I should run more iterations though, before trusting my results too much. 
+
+That transient stage we saw at the beginning of the posterior trace plot is also undesirable to include in our results, because it represents a chain which has not yet converged. We can discard that stage from our trace plot by defining a 'burn-in' - this is, we throw away the first `x` iterations.
+
+There's no fixed rule about how big a burn-in `x` to use, but in general we want to keep as many samples as we can whilst removing that un-converged stage. It is often said that we want to make the trace plot look like a 'fuzzy caterpillar'!   
+
+7. Plot the posterior trace plot without the burn-in stage. (We probably needed more iterations in the MCMC to get a true fuzzy caterpillar, but maybe you can see how this is caterpillar-like).
+
+```{r}
+plot(result, burnin = 1000)
+```
+
+Ok, so it looks like our MCMC mixed fairly well, and therefore we can continue to get some preliminary results. If this were a real analysis, I would still want to run more iterations, but this can be time consuming. So, let's visualize the transmission we inferred. 
+
+8. First, plot the distribution of the parameters we estimated: mutation rate `mu`, reporting probability `pi`, contact reporting coverage `eps` and non-infectious contact rate `lambda`. Remember to remove the burn-in.
+
+```{r}
+# These are 2 plotting options, a histogram or a smoothed density plot.
+plot(result, "mu", type="hist", burnin = 1000)
+plot(result, "mu", type="density", burnin = 1000) # and so on for the other parameters
+```
+
+The `plot` command will recognize various `type=` arguments for plotting `outbreaker_chains` objects. We've just seen "hist" and "density", and now we explore some others. 
+
+9. Next, visualize the inferred ancestries and transmission network. Remember your burn-in!
+
+```{r}
+# Who-infected-who; the size of the dot pertains to the inferred probability that that person (row) was the infector of each case (column):
+plot(result, type = "alpha", burnin = 1000)
+# Distribution of the inferred infection time of each case:
+plot(result, type = "t_inf", burnin = 1000)
+# How many generations were there between cases? Size of dot = probability again. E.g. 1 generation = no unsampled cases, sampled ancestor -> sampled descendant. 2 generations = 1 unsampled case, sampled ancestor -> unsampled ancestor -> sampled descendant.
+plot(result, type = "kappa", burnin = 1000)
+# The inferred transmission network! Thickness of line corresponds to probability of that transmission link (the proportion of the MCMC steps in which that pair were seen together)
+plot(result, type = "network", burnin = 1000, min_support = 0.01)
+```
+
+Note that `type = "network"` opens up an interactive plot: try dragging the nodes around! The `min_support` argument is a useful one; it removes all edges with probability less than its value (0.01) so you don't have a big mess of lines and can really see the strongest inferred transmission pairs. 
+
+10. Lastly, print out a summary of the outbreak inference. 
+
+```{r}
+summary(result, burnin = 1000)
+```
+
+This summary provides:
+
+*`$step`: a recap of which steps in the MCMC were used to create the summary
+*`$post`, `$like`, `$prior`, `$mu`, `$pi`: distributional stats for these quantities
+*`$tree`: a consensus tree, that is, a tree made up of the most frequent infector/infectee pairs among your MCMC samples. The `support` column tells you the percentage of sampled trees which that pair occurred in, and `generations` is the most frequent value of `kappa` among those trees. 
+
+
+## Your own analysis: TB and COVID-19
+
+We have 2 datasets prepared for you to work with in this exercise, and we will also be revisiting them in later exercises. You may well not have time to finish working on both datasets by the end of this session: that's ok! Feel free to keep working on them later, and post any questions on Slack.
+
+1. Download the tuberculosis dataset from the module webpage and/or the COVID-19 dataset from the Slack channel.
+
+The first dataset consists of 86 genomes from an outbreak of tuberculosis (TB) in Hamburg, Germany during the late 1990s/early 2000s. You can read more about the outbreak here: https://doi.org/10.1371/journal.pmed.1001387 (or on ResearchGate [here](https://www.researchgate.net/publication/235670540_Whole_Genome_Sequencing_versus_Traditional_Genotyping_for_Investigation_of_a_Mycobacterium_tuberculosis_Outbreak_A_Longitudinal_Molecular_Epidemiological_Study)). TB is caused by a slow-growing bacterium, Mycobacterium tuberculosis, and outbreaks can be hard to recreate using epidemiological information alone since they often occur over long time frames and ‘can occur during short contacts or in high risk populations (e.g., homeless or alcoholic populations)'. These 86 genomes belong to the largest strain cluster identified in Hamburg/Schleswig-Holstein from 1997-2010. 
+
+The second dataset consists of 40 early SARS-CoV-2 genomes from the UK, specifically from the B.1.13 lineage. They were collected during March and April 2020, by the COG Consortium UK https://www.cogconsortium.uk/.
+
+Both datasets include aligned sequences in a .fasta file and dates of sampling in a .csv (SARS-CoV-2) or .txt (TB) file. The SARS-CoV-2 csv also includes some additional metadata, though we won't be using it in this analysis. 
+
+
+2. **Your task is to use outbreaker2 to infer transmission networks for the TB and/or SARS-CoV-2 outbreaks.** Repeat the analysis we did for the fake outbreak. Loading the data and setting up outbreaker will require a couple of extra steps, some guidance on this is below. See also the 'Hints, tips and common issues' section. 
+
+2a)  You can read in sequence files to R using the command `myseq <- read.FASTA(file = "filenamehere.fasta")` from the `ape` package. Remember that you can read in .csv files with `read.csv` and .txt files with `read.table`. 
+
+2b) Recall that the `outbreaker_data()` function has 5 inputs. We have `dna` in the .fasta file, and there isn't any contact tracing data `ctd` available for these datasets. So that leaves `dates`, `w_dens` and `f_dens`... 
+
+2c) When you read in the metadata, R will assume the date columns are character vectors unless you tell it otherwise. You can do this with the `as.Date` function e.g. `as.Date(yourdatesvector)`. Note: the TB dates are provided in the same order as the sequence file. 
+
+*Important!* One of the trickier things in setting up outbreaker is making sure you input data on a suitable timescale. Outbreaker2 assumes transmission cannot occur over a time of <1 unit of whatever timescale you use - so you should choose a timescale that is suitably small. But, choose a scale that is too small and your analysis will take ages to run. For the TB data, we suggest converting everything to months (for the COVID-19 data we suggest keeping the default timescale of days, so you don't need to do anything). Here is some code you can use to convert the TB data to months: 
+
+```{r, echo=FALSE}
+dates <- read.table(file="roetzer_dates.txt")
+dates <- as.Date(dates[,1])
+```
+
+```{r}
+# For a vector of dates called 'dates'
+dates<-(year(dates) - 1997)*12 + month(dates) + day(dates)/monthDays(dates) # convert to number of months since the start of 1997
+```
+
+2d) The last data aspect to define is generation time `w_dens` and colonization time distribution `f_dens`, also on a monthly scale for the TB data and a daily scale for the COVID data. There is a script to help you with this in the exercise 2 section of the module webpage [wf_distribution.R](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/wf_distribution.R).
+
+## Hints, tips and common issues: 
+
+* Occasionally operating systems download .fasta files as .fasta.txt, which will cause errors in R. If this happens, you can just rename the file or e.g. in Windows: open in Notepad and save as type ‘All Files’ instead of as a text file.
+
+* For testing your method, you might want to use the `create_config` input to outbreaker to reduce the number of iterations in the MCMC - since these outbreaks are both much larger than the fake outbreak, outbreaker2 will take longer to run. We would suggest using 100 iterations whilst you get things working. You can increase this later if you want to do a longer run with more reliable results. For example:
+
+```{r}
+my_config <- create_config(n_iter = 100)
+```
+
+* You will need to ensure the labels on each sample in your dna object match the labels on the date for each sample. To do this, before running outbreaker_data make sure to set `names(dates) = labels(dna)` (if your dates vector is named 'dates’ and your dna object is named ‘dna’).
+
+* Mutation rate mu: mutation rates are typically expressed per unit time. However, outbreaker2 estimates them per generation of infection. Please keep this in mind if you compare your estimated rates to those in the literature.
+
+## Extension tasks and additional reading
+
+A. To learn more about customizing the likelihood, priors and moves used in outbreaker2, check out the tutorial https://www.repidemicsconsortium.org/outbreaker2/articles/customisation.html. You could try this out with the TB/COVID data. For example, what if I told you that I think the reporting rate in both these outbreaks is around 30%, but that there's no way it's above 80%?
+
+B. You can read more about outbreaker2 and outbreaker (the original package which outbreaker2 extends upon) at https://bmcbioinformatics.biomedcentral.com/track/pdf/10.1186/s12859-018-2330-z (Campbell et al, 2017) and https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1003457&type=printable (Jombart et al, 2014)
+
+ 
+ 

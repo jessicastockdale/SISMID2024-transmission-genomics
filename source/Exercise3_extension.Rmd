@@ -1,0 +1,137 @@
+---
+title: "Building a timed tree via molecular clock dating with 'treedater'"
+author: "Jessica Stockdale"
+output: 
+    html_document:
+        toc: true
+        number_sections: true
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Building phylogenetic trees for transmission reconstruction
+When we build phylogenetic trees with software such as IQtree, raxml, FastTree, PAML or other maximum-likelihood tree reconstruction tools, the branches are typically in units of genetic distance (in substitutions per site). Trees typically do not have a root (though when they are read into R, the `ape` package sometimes interprets them as rooted nonetheless). 
+
+In contrast, for reconstructing transmission -- either person to person transmission in software like `TransPhylo`, or phylogeographic movements of viruses -- we often require a timed phylogenetic tree. This is a rooted phylogenetic tree whose branches are in units of calendar time, not substitutions per site. The root is the oldest node in the tree. Nodes have calendar dates, such that each tip's date corresponds to the date of collection of the sample corresponding to the tip. 
+
+The relationship between the untimed and timed trees is shaped by the molecular clock of the pathogen. This is the model defining how substitutions occur through time. For example, do all branches in the phylogeny evolve at the same rate  (a "strict clock") or not (a "relaxed clock")? 
+
+`treedater` can take a tree whose branch lengths are in units of genetic distance and create a tree with a root, whose branches are in units of calendar time, such that the tips line up at their collection dates. To create such a tree, you need to provide the input (genetic distance) tree, the dates of sampling of the tips, and the length of the sequences used to reconstruct the tree. Because you are providing the number of substitutions per site, the tree and the dates, `treedater` can estimate the rate of substitution in calendar time. It can also estimate dates of tips where only a lower and upper bound are provided. 
+
+This extension exercise was adapted from the `treedater` tutorial written by Erik Volz. 
+
+# A brief introduction to building timed phylogenies
+
+`treedater` uses a relaxed clock model, allowing substitution rates to vary across the tree using a Gamma-Poisson mixture model. A substitution rate is estimated for every lineage in the tree, but it is also designed to be fast and useable for large phylogenetic trees via a heuristic search algorithm. You can read more about the math behind this in the paper E.M. Volz and S.D.W. Frost (2017) [Scalable relaxed clock phylogenetic dating](https://doi.org/10.1093/ve/vex025).
+
+
+In its most simple form, we can run `treedater` on our phylogeny of choice (`tree`, an `ape` phylo object) with the command
+```r
+dater(tree, samps, s)
+```
+where `samps` is a vector containing the sampling time of each tip, and `s` is the length of the genetic sequences. Note, `samps` should be a named vector matching the tip names in `tree`.
+
+## A timed phylogeny for the US flu data
+We will read in our maximum likelihood tree for the US flu data, and by adding in the sampling dates build a timed phylogeny.
+
+  
+```{r}
+library(treedater)
+tree <- ape::read.tree("myflutree.nwk")
+tree
+```
+Note that this tree is unrooted. When fitting the clock model, we will estimate the best choice of root. 
+
+As mentioned, we need to tell `treedater` the sequence length for inferring the clock.
+
+```{r}
+seqlen <- 1701 # can confirm by looking back at 'seqs' object from exercise 3 main
+```
+
+We also need the sampling time for each tip. Recall that the years were contained in the metadata file, and that we need a named vector
+
+```{r}
+meta <- read.csv("usflu.annot.csv", header = TRUE, row.names = 1)
+samps <- setNames(meta$year, meta$accession)
+head(samps)
+```
+
+Now we are ready to run `treedater`, in its simplest form  with a strict clock
+```{r}
+dattree <- dater(tree , samps, seqlen, clock = 'strict' )
+dattree 
+```
+
+Note that the algorithm has searched to find the best root, and provided us a tree with timed branches. Had we wanted to pick our own root, we simply could have provided a rooted tree like we obtained in the main exercise 3 script. `treedater` also picked its own starting guess for `omega0`, the substitution rate. We could have provided our own initial guess, if we had one. Providing either of these can significantly speed up the run time. 
+
+For more computationally demanding runs, we can set the parameter `ncpu` to run the function in parallel using multiple cores (the default value of `ncpu` is 1). 
+
+Now lets take a closer look at the output. `treedater` has estimated the substitution rate, and provided a 'TMRCA' - time to most recent common ancestor. We can plot our timed tree in the same was as in the `ape` package from before.
+
+```{r}
+plot(dattree, cex = .5) # 'cex' changes font size
+title("Timed tree for US flu data")
+axisPhylo()
+```
+
+Now the axis is counting back years. 
+
+We can run a root-to-tip regression on this tree, to look for outlier tips. Nothing in the tree above looks particularly like an outlier (e.g. a single tip on a long branch), but lets run the regression anyway for practice. 
+
+
+```{r}
+rootToTipRegressionPlot(dattree)
+```
+The p-value is tiny, suggesting we have sufficient signal of a clock-like process. There are no clear outliers in the plot (deviations from the x=y diagonal), but lets continue to check for them for practice. 
+
+
+## Outliers
+
+`treedater` has in-built functions for outlier detection and removal. The `outlierTips` function looks for tips that do not provide a good fit to the molecular clock model. 
+
+```{r}
+outliers <- outlierTips(dattree , alpha = 0.20) 
+```
+At the alpha = 20% level, this function returns a table of the tips (taxa) in ascending order of model fit. An option for outlier removal is to discard tips with low q-value (note: we do this from the original tree, not the timed tree)
+  
+```{r}
+tree2 <- ape::drop.tip(tree, rownames(outliers[outliers$q < 0.20,]) )
+```
+
+We dropped 13/80 tips. This is quite a large proportion of the data - in practice we should consider if this is indeed sensible by carefully investigating these 13 tips. Nonetheless, let's rerun `treedater` with the reduced tree, and plot both timed trees. Where are the main differences?
+  
+```{r}
+dattree2 <- dater(tree2, samps, seqlen, clock='uncorrelated')  
+dattree2
+
+plot(dattree, cex = .5)
+title("Timed tree for US flu data")
+axisPhylo()
+
+plot(dattree2, cex = .5) 
+title("Timed tree for US flu data, with outliers removed")
+axisPhylo()
+```
+
+
+Note that the second tree was generated with an uncorrelated (relaxed) clock model. We can test the suitability of the relaxed clock (vs a strict one) with the following test (that may be slow to run)
+  
+  
+```{r}
+rct <- relaxedClockTest(dattree2, samps, seqlen)
+```
+
+This test indicates a relaxed clock is preferred. 
+
+There is more that can be done with the `treedater` package. It is possible to estimate confidence intervals around the inferred dates and rates, using a parametric or nonparametric bootstrap. It is also possible to put uncertainty around the sampling times when they are only known e.g. to nearest month or year. This is exactly the case we had here, with only years known, and so would be a good extension to the work above. See the `treedater` documentation for more information about how to do this.
+
+# Next steps
+
+If you have time, try building timed phylogenies for the TB and COVID-19 data. In exercise 4, we will be using timed trees to reconstruct transmission. We will be providing these timed trees for you, but if you get this far you could see how different your timed `treedater` trees are from those we provide. 
+
+
+
+
+ 

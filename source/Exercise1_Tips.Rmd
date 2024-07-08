@@ -1,0 +1,76 @@
+---
+title: 'Exercise 1: Tips'
+author: "Jessica Stockdale, Caroline Colijn"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Getting genomic sequences into R
+
+The `ape` package has a helpful function for reading .fasta sequence files into R.
+
+```{r}
+library(ape)
+FMDseq <- read.FASTA(file = "AU-FMD-sequences.fasta")
+FMDseq
+```
+
+Note that, when we print an individual sequence, it shows numeric values rather than a, c, t, g.
+
+```{r}
+head(FMDseq$Case_1)
+```
+
+The `ape` package has saved the sequences in byte format for efficiency. If needed, we can request to print them as characters.
+
+```{r}
+head(as.character(FMDseq)$Case_1)
+```
+
+
+## Working with genomic sequences in R
+
+There are many helpful R packages for analyzing genomic sequences. 
+
+```{r }
+library(ape)
+```
+
+The `ape` (Analyses of Phylogenetics and Evolution) package does more than read in sequences. We can also compute sequence distances, plot and manipulate phylogenetic trees, and more. We'll see more from this package later in the module. For now, why not take a look at the `dist.dna()` function for computing distances between the FMD sequences. How about `image()`?
+
+```{r  }
+library(bioseq)
+```
+
+`bioseq` is another useful package, specifically for sequence manipulation. In contains in-built functions for clustering sequences, among other things. Take a look at the `seq_cluster()` function. Note, `bioseq` requires its own sequence format, obtained through e.g. `as_dna(FMDseq)`
+
+ 
+## Accessing and analyzing epidemiological data
+
+Remember that we can read in other file types with e.g. 
+
+```{r}
+FMDepi <- read.csv("AU-FMD-epidata.csv")
+head(FMDepi)
+```
+We could generate plots of this data using our favorite plotting commands e.g. with `ggplot`. 
+
+For the latitude/longitude data, several mapping packages exist in R. One such is
+
+```{r}
+library(ggmap)
+```
+Although note, you will need to obtain a (free) Google API https://mapsplatform.google.com/. 
+
+## Combining the above
+
+You may want to consider how we could write a mathematical expression to combine these different sources of information (genomic distance, geographic location, times, ...) so as to ascertain the most likely infectors of each herd. This will be the focus of much of this module. 
+
+
+
+
+
+
