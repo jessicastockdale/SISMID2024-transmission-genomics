@@ -1,13 +1,13 @@
 
-## Welcome to 'Reconstructing Transmission with Genomic Data' at SISMID 2023
+## Welcome to 'Reconstructing Transmission with Genomic Data' at SISMID 2024
 
 This site hosts all of the online materials for the course. 
 
-For more details see [our module page on the SISMID website](https://si.biostat.washington.edu/institutes/sismid/MD2307).
+For more details see [our module page on the SISMID website](https://sph.emory.edu/SISMID/modules/recon-transmission-genomic-data/index.html).
 
 ### Schedule
 
-The schedule is [available here](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/Mod7_schedule.pdf).
+The schedule is [available here](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/Mod_schedule.pdf).
 
 ### Things to know
 
@@ -20,9 +20,9 @@ The schedule is [available here](https://jessicastockdale.github.io/SISMID2023-t
 
 All computational exercises in this module will use R and Rstudio.
 
-If you've never used R before, we have created a tutorial for you to work through in advance of the course. If you've already done a tutorial for one of the other SISMID modules or otherwise, that will be fine too. You can access the tutorial here: [An Introduction to R and RStudio](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/R_tutorial.html).
+If you've never used R before, we have created a tutorial for you to work through in advance of the course. If you've already done a tutorial for one of the other SISMID modules or otherwise, that will be fine too. You can access the tutorial here: [An Introduction to R and RStudio](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/R_tutorial.html).
 
-We have also created a short second R tutorial which walks you through installing all of the packages we'll be using during the module. Please work through this in advance of the course. If you have any problems, feel free to drop us a message on Slack. The second tutorial can be accessed here: [Installation and preparation instructions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/Files/R_tutorial2.html). **Note: everyone should do this one!**
+We have also created a short second R tutorial which walks you through installing all of the packages we'll be using during the module. Please work through this in advance of the course. If you have any problems, feel free to drop us a message on Slack. The second tutorial can be accessed here: [Installation and preparation instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/R_tutorial2.html). **Note: everyone should do this one!**
 
 In addition, for participants new to genomic sequencing and genomic data, we ask you to watch the following Youtube lecture in advance of the course, which provides a short primer on relevant aspects of the field to our course
 {% include youtubePlayer.html id="eLe-AUyaDxY" %}
@@ -32,7 +32,7 @@ In addition, for participants new to genomic sequencing and genomic data, we ask
 
 Here you will be able to download the course exercise materials. Click each link to download data files and access exercise instructions. Links to solutions will be added once the exercises are complete.
 
-Exercise 1: [Data](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/FMD-AU-data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise1.html), [Tips](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise1_Tips.html), and [Solutions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise1_results.pdf).
+Exercise 1: [Data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/FMD-AU-data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1.html), [Tips](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_Tips.html), <! -- and [Solutions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_results.pdf). -->
 
 Exercise 2: [Instructions](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/Exercise2.html), [Extra Helper Code](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/wf_distribution.R)
 and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex2_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/ex2_tbdata.R).
