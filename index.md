@@ -48,7 +48,7 @@ Data for exercises 2, 3, 4: [TB data](https://jessicastockdale.github.io/SISMID2
 
 Here you will be able to download the lecture slides.
 
-[Lecture 1](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_L1_intro-b-2024.pdf)
+[Lecture 1](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_L1_intro-b-2023.pdf)
 
 [Lecture 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/SISMID-L2-NONPHYLO.pdf)
 
