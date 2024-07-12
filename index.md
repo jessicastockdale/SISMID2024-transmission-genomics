@@ -7,7 +7,7 @@ For more details see [our module page on the SISMID website](https://sph.emory.e
 
 ### Schedule
 
-The schedule is [available here](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/Mod_schedule.pdf).
+The schedule is [available here](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/Schedule.pdf).
 
 ### Things to know
 
