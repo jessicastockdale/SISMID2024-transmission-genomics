@@ -48,26 +48,48 @@ library(bioseq)
 `bioseq` is another useful package, specifically for sequence manipulation. In contains in-built functions for clustering sequences, among other things. Take a look at the `seq_cluster()` function. Note, `bioseq` requires its own sequence format, obtained through e.g. `as_dna(FMDseq)`
 
  
-## Accessing and analyzing epidemiological data
+## Accessing and analyzing the epidemiological data
 
 Remember that we can read in other file types with e.g. 
 
 ```{r}
 FMDepi <- read.csv("AU-FMD-epidata.csv")
 head(FMDepi)
+
+```
+
+Or as a tibble
+
+```{r, eval=FALSE}
+library(tidyverse)
+FMDepi <- read_csv("AU-FMD-epidata.csv")
+head(FMDepi)
+
 ```
 We could generate plots of this data using our favorite plotting commands e.g. with `ggplot`. 
 
 For the latitude/longitude data, several mapping packages exist in R. One such is
 
-```{r}
+```{r, eval = FALSE}
 library(ggmap)
 ```
-Although note, you will need to obtain a (free) Google API https://mapsplatform.google.com/. 
+Although note, you will need to obtain a (free) Google API https://mapsplatform.google.com/ if you wish to use the Google Maps option. 
+
+The `maps` package is a good, simpler, alternative. 
+
+```{r, eval = FALSE}
+library(maps)
+```
 
 ## Combining the above
 
 You may want to consider how we could write a mathematical expression to combine these different sources of information (genomic distance, geographic location, times, ...) so as to ascertain the most likely infectors of each herd. This will be the focus of much of this module. 
+
+Some ideas: what if we thought it was only possible for an infecting herd to be within *x* SNPs, *y* distance and *z* time of an infectee herd? What if we wanted to make it more likely that a larger herd transmitted infection than a smaller herd? Should the date of culling affect the chance that a herd transmits infection?
+
+
+
+
 
 
 

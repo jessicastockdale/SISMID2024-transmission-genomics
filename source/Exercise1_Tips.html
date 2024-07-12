@@ -362,7 +362,7 @@ display: none;
 <pre class="r"><code>library(ape)
 FMDseq &lt;- read.FASTA(file = &quot;AU-FMD-sequences.fasta&quot;)
 FMDseq</code></pre>
-<pre><code>## 42 DNA sequences in binary format stored in a list.
+<pre><code>## 50 DNA sequences in binary format stored in a list.
 ## 
 ## All sequences of same length: 7667 
 ## 
@@ -377,8 +377,8 @@ FMDseq</code></pre>
 ## 
 ## Base composition:
 ##     a     c     g     t 
-## 0.253 0.282 0.256 0.209 
-## (Total: 322.01 kb)</code></pre>
+## 0.253 0.282 0.257 0.209 
+## (Total: 383.35 kb)</code></pre>
 <p>Note that, when we print an individual sequence, it shows numeric
 values rather than a, c, t, g.</p>
 <pre class="r"><code>head(FMDseq$Case_1)</code></pre>
@@ -408,42 +408,38 @@ sequences, among other things. Take a look at the
 its own sequence format, obtained through
 e.g. <code>as_dna(FMDseq)</code></p>
 </div>
-<div id="accessing-and-analyzing-epidemiological-data" class="section level2">
-<h2>Accessing and analyzing epidemiological data</h2>
+<div id="accessing-and-analyzing-the-epidemiological-data" class="section level2">
+<h2>Accessing and analyzing the epidemiological data</h2>
 <p>Remember that we can read in other file types with e.g. </p>
 <pre class="r"><code>FMDepi &lt;- read.csv(&quot;AU-FMD-epidata.csv&quot;)
 head(FMDepi)</code></pre>
-<pre><code>##   herd.name herd.id  latitude longitude   herd.type n.animals day.onset day.dx
-## 1    Case_1  109047 -36.51128  144.8273  pigs large      3209         4     22
-## 2    Case_2  104058 -36.49946  144.9456       dairy       127         8     34
-## 3    Case_3  120734 -36.46383  145.0562       sheep      1235         8     27
-## 4    Case_4   80984 -36.45630  144.9038 mixed sheep      1705         9     26
-## 5    Case_5  103912 -36.37674  144.8036       dairy       213         9     34
-## 6    Case_6  103959 -36.53692  144.7564       dairy       561        10     35
-##   dx.reason day.culling.start
-## 1        TP                25
-## 2       DCP                37
-## 3        SP                29
-## 4        SP                30
-## 5       ARP                37
-## 6       ARP                38</code></pre>
+<pre><code>##   herd.name herd.id     latitude longitude   herd.type n.animals day.onset
+## 1    Case_1  109047  -36.5112796  144.8273  pigs large      3209         4
+## 2    Case_2  104058 -36.49945583  144.9456       dairy       127         8
+## 3    Case_3  120734 -36.46383352  145.0562       sheep      1235         8
+## 4    Case_4   80984  -36.4563005  144.9038 mixed sheep      1705         9
+## 5    Case_5  103912 -36.37673931  144.8036       dairy       213         9
+## 6    Case_6  103959 -36.53691725  144.7564       dairy       561        10
+##   day.dx dx.reason day.culling.start
+## 1     22        TP                25
+## 2     34       DCP                37
+## 3     27        SP                29
+## 4     26        SP                30
+## 5     34       ARP                37
+## 6     35       ARP                38</code></pre>
+<p>Or as a tibble</p>
+<pre class="r"><code>library(tidyverse)
+FMDepi &lt;- read_csv(&quot;AU-FMD-epidata.csv&quot;)
+head(FMDepi)</code></pre>
 <p>We could generate plots of this data using our favorite plotting
 commands e.g. with <code>ggplot</code>.</p>
 <p>For the latitude/longitude data, several mapping packages exist in R.
 One such is</p>
 <pre class="r"><code>library(ggmap)</code></pre>
-<pre><code>## Loading required package: ggplot2</code></pre>
-<pre><code>## The legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
-## which was just loaded, will retire in October 2023.
-## Please refer to R-spatial evolution reports for details, especially
-## https://r-spatial.org/r/2023/05/15/evolution4.html.
-## It may be desirable to make the sf package available;
-## package maintainers should consider adding sf to Suggests:.
-## The sp package is now running under evolution status 2
-##      (status 2 uses the sf package in place of rgdal)</code></pre>
-<pre><code>## ℹ Google&#39;s Terms of Service: &lt;https://mapsplatform.google.com&gt;
-## ℹ Please cite ggmap if you use it! Use `citation(&quot;ggmap&quot;)` for details.</code></pre>
-<p>Although note, you will need to obtain a (free) Google API <a href="https://mapsplatform.google.com/" class="uri">https://mapsplatform.google.com/</a>.</p>
+<p>Although note, you will need to obtain a (free) Google API <a href="https://mapsplatform.google.com/" class="uri">https://mapsplatform.google.com/</a> if you wish to use the
+Google Maps option.</p>
+<p>The <code>maps</code> package is a good, simpler, alternative.</p>
+<pre class="r"><code>library(maps)</code></pre>
 </div>
 <div id="combining-the-above" class="section level2">
 <h2>Combining the above</h2>
@@ -452,6 +448,11 @@ to combine these different sources of information (genomic distance,
 geographic location, times, …) so as to ascertain the most likely
 infectors of each herd. This will be the focus of much of this
 module.</p>
+<p>Some ideas: what if we thought it was only possible for an infecting
+herd to be within <em>x</em> SNPs, <em>y</em> distance and <em>z</em>
+time of an infectee herd? What if we wanted to make it more likely that
+a larger herd transmitted infection than a smaller herd? Should the date
+of culling affect the chance that a herd transmits infection?</p>
 </div>
 
 

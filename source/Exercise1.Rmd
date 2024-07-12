@@ -19,7 +19,7 @@ You have ~1 hour for this exercise. Then, for the final ~20-25 minutes we will r
 # First steps
 1. Introduce yourselves.
 2. Assign roles from the list below - these don’t have to be formal but might help keep things on track.
-3. Download the data from the main module webpage
+3. Download the data from the module webpage
 4. Open up the data (in R, in a text reader, in Excel, wherever you prefer) 
 5. Get exploring! The data dictionary file is a good place to start.
 
@@ -36,7 +36,7 @@ Diagnostician -  thinks about the problems and limitations of the data/analysis,
 
 # Key questions you might ask
 - You have several pieces of information available to you about each infected herd. Which are more/less informative? How should we combine them? How should we weight them?
-- How could we visualize the data, and the inferred chains of transmission?
+- How could we visualize the data, and any inferred chains of transmission?
 - What are the strengths of this approach, and in what ways are we limited?
 - What other information would be helpful for inferring transmission? 
  
