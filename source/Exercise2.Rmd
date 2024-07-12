@@ -74,7 +74,7 @@ One way to do this is to look at trace plots of the MCMC chain
 plot(result)
 ```
 
-You should see something like this, a transient stage at the very start of the chain followed by something bumpy but relatively stable. If you used a different seed than me, your trace plot will look a bit different: that's ok. We used 10,000 iterations here, but in a full analysis we would use more, in part to minimize the effect of the seed on the results. 
+You should see something like this, a transient stage at the very start of the chain followed by something bumpy but relatively stable. If you used a different seed than me, your trace plot will look a bit different: that's ok. We used 10,000 iterations here, but in a full analysis we would use more, in part to minimize the effect of the seed choice on the results. 
 
 6. You can also use `plot` to get trace plots of any other column in `result`. Try a few with e.g. `plot(result, "prior")`, `plot(result, "t_inf_29")`...
 
@@ -83,13 +83,13 @@ plot(result, "prior")
 plot(result, "t_inf_29")
 ```
 
-"t_inf_29" (the time of infection of case 29) doesn't look so well mixed - we can see discrete jumps between different states. This is in part because the algorithm might not update 29's infection time at each iteration - this may be a necessary compromise for computation time's sake. It suggests to me I should run more iterations though, before trusting my results too much. 
+"t_inf_29" (the time of infection of case 29) doesn't look so well mixed - we can see discrete jumps between different states. This is in part because the algorithm might not update 29's infection time at each iteration - this may be a necessary compromise for computation time's sake. It suggests to me that I should run more iterations though, before trusting my results too much. 
 
 That transient stage we saw at the beginning of the posterior trace plot is also undesirable to include in our results, because it represents a chain which has not yet converged. We can discard that stage from our trace plot by defining a 'burn-in' - this is, we throw away the first `x` iterations.
 
 There's no fixed rule about how big a burn-in `x` to use, but in general we want to keep as many samples as we can whilst removing that un-converged stage. It is often said that we want to make the trace plot look like a 'fuzzy caterpillar'!   
 
-7. Plot the posterior trace plot without the burn-in stage. (We probably needed more iterations in the MCMC to get a true fuzzy caterpillar, but maybe you can see how this is caterpillar-like).
+7. Plot the posterior trace plot without the burn-in stage. (We probably needed more iterations in the MCMC to get a true fuzzy caterpillar, but maybe you can see how this is caterpillar-esque).
 
 ```{r}
 plot(result, burnin = 1000)
@@ -137,7 +137,7 @@ This summary provides:
 
 ## Your own analysis: TB and COVID-19
 
-We have 2 datasets prepared for you to work with in this exercise, and we will also be revisiting them in later exercises. You may well not have time to finish working on both datasets by the end of this session: that's ok! Feel free to keep working on them later, and post any questions on Slack.
+We have 2 datasets prepared for you to work with in this exercise. We will also be revisiting them in the later exercises. You may well not have time to finish working on both datasets by the end of this session: that's ok! Feel free to keep working on them later, and post any questions on Slack.
 
 1. Download the tuberculosis dataset from the module webpage and/or the COVID-19 dataset from the Slack channel.
 
@@ -150,13 +150,13 @@ Both datasets include aligned sequences in a .fasta file and dates of sampling i
 
 2. **Your task is to use outbreaker2 to infer transmission networks for the TB and/or SARS-CoV-2 outbreaks.** Repeat the analysis we did for the fake outbreak. Loading the data and setting up outbreaker will require a couple of extra steps, some guidance on this is below. See also the 'Hints, tips and common issues' section. 
 
-2a)  You can read in sequence files to R using the command `myseq <- read.FASTA(file = "filenamehere.fasta")` from the `ape` package. Remember that you can read in .csv files with `read.csv` and .txt files with `read.table`. 
+2a)  You can read in sequence files to R using the command `myseq <- read.FASTA(file = "filenamehere.fasta")` from the `ape` package. Remember that you can read in .csv files with `read.csv` and .txt files with `read.table`, or `read_csv` and `read_table` if you prefer to use tidyverse functionality. 
 
 2b) Recall that the `outbreaker_data()` function has 5 inputs. We have `dna` in the .fasta file, and there isn't any contact tracing data `ctd` available for these datasets. So that leaves `dates`, `w_dens` and `f_dens`... 
 
 2c) When you read in the metadata, R will assume the date columns are character vectors unless you tell it otherwise. You can do this with the `as.Date` function e.g. `as.Date(yourdatesvector)`. Note: the TB dates are provided in the same order as the sequence file. 
 
-*Important!* One of the trickier things in setting up outbreaker is making sure you input data on a suitable timescale. Outbreaker2 assumes transmission cannot occur over a time of <1 unit of whatever timescale you use - so you should choose a timescale that is suitably small. But, choose a scale that is too small and your analysis will take ages to run. For the TB data, we suggest converting everything to months (for the COVID-19 data we suggest keeping the default timescale of days, so you don't need to do anything). Here is some code you can use to convert the TB data to months: 
+*Important!* One of the trickier things in setting up outbreaker is making sure you input data on a suitable timescale. Outbreaker2 assumes transmission cannot occur over a time <1 unit of whatever timescale you use - so you should choose a timescale that is suitably small. But, choose a scale that is too small and your analysis will take ages to run. For the TB data, we suggest converting everything to months. For the COVID-19 data we suggest keeping the default timescale of days (so, you don't need to do anything). Here is some simple code you can use to convert the TB data to months: 
 
 ```{r, echo=FALSE}
 dates <- read.table(file="roetzer_dates.txt")
@@ -168,11 +168,11 @@ dates <- as.Date(dates[,1])
 dates<-(year(dates) - 1997)*12 + month(dates) + day(dates)/monthDays(dates) # convert to number of months since the start of 1997
 ```
 
-2d) The last data aspect to define is generation time `w_dens` and colonization time distribution `f_dens`, also on a monthly scale for the TB data and a daily scale for the COVID data. There is a script to help you with this in the exercise 2 section of the module webpage [wf_distribution.R](https://jessicastockdale.github.io/SISMID2023-transmission-genomics/source/wf_distribution.R).
+2d) The last data aspect to define is generation time `w_dens` and colonization time distribution `f_dens`, also on a monthly scale for the TB data and a daily scale for the COVID data. There is a script to help you with this in the exercise 2 section of the module webpage [wf_distribution.R](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/wf_distribution.R).
 
 ## Hints, tips and common issues: 
 
-* Occasionally operating systems download .fasta files as .fasta.txt, which will cause errors in R. If this happens, you can just rename the file or e.g. in Windows: open in Notepad and save as type ‘All Files’ instead of as a text file.
+* Occasionally operating systems download .fasta files as .fasta.txt, which will cause errors in R. If this happens, you can just rename the file or e.g. in Windows: open in Notepad and save as type ‘All Files’ instead of text file.
 
 * For testing your method, you might want to use the `create_config` input to outbreaker to reduce the number of iterations in the MCMC - since these outbreaks are both much larger than the fake outbreak, outbreaker2 will take longer to run. We would suggest using 100 iterations whilst you get things working. You can increase this later if you want to do a longer run with more reliable results. For example:
 
@@ -180,9 +180,9 @@ dates<-(year(dates) - 1997)*12 + month(dates) + day(dates)/monthDays(dates) # co
 my_config <- create_config(n_iter = 100)
 ```
 
-* You will need to ensure the labels on each sample in your dna object match the labels on the date for each sample. To do this, before running outbreaker_data make sure to set `names(dates) = labels(dna)` (if your dates vector is named 'dates’ and your dna object is named ‘dna’).
+* You will need to ensure that the labels on each sample in your dna object match the labels on the date for each sample, exactly. To do this, before running outbreaker_data you could set `names(dates) = labels(dna)` (if your dates vector were named 'dates’ and your dna object were named ‘dna’, and both were in the same order).
 
-* Mutation rate mu: mutation rates are typically expressed per unit time. However, outbreaker2 estimates them per generation of infection. Please keep this in mind if you compare your estimated rates to those in the literature.
+* Mutation rate mu: mutation rates are typically expressed per unit time. However, outbreaker2 estimates them per *generation of infection*. Please keep this in mind if you compare your estimated rates to those in the literature.
 
 ## Extension tasks and additional reading
 

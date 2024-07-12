@@ -84,6 +84,7 @@ summary(res)
 
 
 # It looks like the code is working as expected, so now we can try a longer run
+# ...maybe go grab a cup of coffee...
 my_config2 <- create_config(n_iter = 10000,
                            sample_every = 1,
                            move_kappa = TRUE) 

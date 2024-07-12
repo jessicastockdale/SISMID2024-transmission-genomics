@@ -41,6 +41,7 @@ plot(x, f, type = "l",
      ylab = "p(new case)", 
      main = "Sampling time distribution")
 # 15 days indeed looks reasonable
+# Note everything is on a unit of days so the plots are somewhat discrete
 
 
 # take the name labels from the metadata file or from the dna labels, either works just the same:
@@ -96,7 +97,10 @@ plot(res,type="network",burnin=20,min_support=0.01) # with quite a lot of cases,
 summary(res)
 # by the look of these results, we definitely need more than 100 iterations!!
 
+
+
 # It looks like the code is working as expected, so now we can try a longer run
+# ...maybe go grab a cup of coffee...
 my_config2 <- create_config(n_iter = 10000,
                             sample_every = 1,
                             move_kappa = TRUE) 
