@@ -20,7 +20,7 @@ If you suspect you may have an older version of R/RStudio, it is a good idea to 
 
 **1. Verify R version**: Open RStudio. At the top of the Console you will see session info. The first line tells you which version of R you are using. Or, enter the command `R.version.string` to print out the R version instead.
 
-Do you have R version 4.1.0 OR LATER installed?
+Do you have R version 4.2.0 OR LATER installed?
 
 No - follow the instructions below for “Updating R”
 

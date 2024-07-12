@@ -34,17 +34,18 @@ Read the page http://www.r-tutor.com/r-introduction.
 
 (1) Try creating some variables: for example, create a variable x that is 7^2 (49). 
 
-(2) Use base R functions to compute the square root of x, 2*x, sin(x), cos(x), x+3*x^2, etc.
+(2) Use base R functions to compute the square root of *x*, *2x*, *sin(x)*, *cos(x)*, *x+3x^2*, etc.
 
 ```{r}
 x <- 7^2
 x
 sqrt(x)
+2*x
 ```
 
 (3) Read the help documentation for the function `sin`. You can type `help(sin)` as directed in the tutorial, or use the search function of the help tab, which should be on the right hand side of RStudio.
 
-A useful tip for when writing R scripts is to write yourself comments alongside the actual function code. You can do this with the `#` symbol. Everything after `#` in a line of R code is considered a comment i.e. not actual code to be run. This is useful when you come back to code you wrote in the past and can't remember what it does! For example
+A useful tip for when writing R scripts is to add comments alongside the actual function code. You can do this with the `#` symbol. Everything after `#` in a line of R code is considered a comment i.e. not actual code to be run. This is useful when you come back to code you wrote in the past and can't remember what it does! For example
 ```{r}
 sqrt(x) # this function calculates the square root of x
 ```
@@ -76,13 +77,13 @@ Play with complex numbers if you like, though we won't need them for this module
 
 (4) Using what you just learned from the logical section, check that your variables from (3) are indeed all stored as integers. 
 
-Now move to the character section. This is important because often, data in character format (like which county someone lives in or which colour something is) are represented as 'factors' in R.  Factors are important in epidemiological data analysis, as patterns can be different depending on the value of the variable (e.g. infection rates show different trends in different counties). 
+Now move to the character section. This is important, because often data in character format (like which county someone lives in or which colour something is) are represented as 'factors' in R.  Factors are important in epidemiological data analysis, as patterns can be different depending on the value of a variable (e.g. infection rates show different trends in different counties). 
 
 (4) Make a character variable that is your own first and last name. Use the `substr` function to extract the first and fourth characters. Play around with pasting strings together using the `paste` function. See `?paste` or `help(paste)` if you would like to know what the options are (as with any function).
 
 ## Vectors
 
-Moving to the next section, we look at vectors http://www.r-tutor.com/r-introduction/vector. Vectors are key. In epi and genomic analyses, we usually want to store our data in a data.frame. Each column is a vector - of integers, characters, numeric values, etc. Working with vectors will give you the basic tools you need to work with columns of data frames. 
+Moving to the next section, we look at vectors http://www.r-tutor.com/r-introduction/vector. Vectors are key. In epi and genomic analyses, we usually want to store our data in a data.frame (or, as we will see later, a similar object called a tibble). Each column is a vector - of integers, characters, numeric values, etc. Working with vectors will give you the basic tools you need to work with data frames. 
 
 (1) Create the vector of character strings "hi", "there", "hi", "there", "hi", "there" using the concatenate function `c()`. Name your vector `mychars`. You can also look at how to define this vector more efficiently using the function `rep()`.
 
@@ -92,7 +93,7 @@ As we have seen, in R the assignment operator is `<-`. But it is possible to use
 
 Assigning the value of a variable is different than *testing* equality; this is true in any programming language. We test equality with `==`. So you can type `x=2` to assign 2 to x, then test `x==4` (FALSE) or `x==2` (TRUE). 
 
-(1) Comparisons work on vectors in a pointwise way. Use `==` to tell which entries of `mychars` are "hi". 
+(1) Comparisons work on vectors in a pointwise way. Use `==` to print which entries of `mychars` are "hi". 
 
 (2) Make some quick vectors like these: 
 ```{r}
@@ -109,13 +110,13 @@ y=2*(1:10) # the : operator goes through 1, 2, 3, 4, ...
 y
 ```
 
-(3) Play with some vectors. Use the concatenate function `c()` to join them together. If they have different formats, what happens? With reference to the [vector arithmetic page in the tutorial](http://www.r-tutor.com/r-introduction/vector/vector-arithmetics), multiply and divide them. A word of warning: be careful of the recycling rule! Personally, I prefer not to use it - I find it too easy to get something that surprises me (unless you are very used to it). 
+(3) Play with some vectors. Use the concatenate function `c()` to join them together. If they have different formats, what happens? With reference to the [vector arithmetic page in the tutorial](http://www.r-tutor.com/r-introduction/vector/vector-arithmetics), multiply and divide them. A word of warning: be careful of the recycling rule! Personally, I prefer not to use it - I find it too easy to get something that surprises me or to make a silly error. 
 
 ## Indexing
 
 Explore indexing with reference to the next page http://www.r-tutor.com/r-introduction/vector/numeric-index-vector. What happens when you use negative indices? This is actually a really convenient feature of R - it's easy to exclude based on a condition.
 
-(1) Read the help file for the function `which`. Use it with the vectors you have created so far to find the indices where those vectors meet conditions that you specify. For example `which(x<10 & x >6)` and so on. 
+(1) Read the help file for the function `which`. Use it with the vectors you have created so far to find the indices where those vectors meet conditions that you specify. For example `which(x<10 & x>6)` and so on. 
 
 One of the things that can take some getting used to in R is the difference between ( ) and [ ], particularly if you're used to another language like Matlab. So x(10) is NOT the 10th member of the vector x. x(10) gives an error (try it!). Instead, `x[10]` is the 10th member of the vector x. While this can be annoying, it makes code easier to read because it's immediately clear when you are accessing a component of a (vector or matrix) variable vs when you are applying a function to an argument. 
 
@@ -127,7 +128,7 @@ R can also *name* its vector entries, data frame columns, rows and other objects
 
 ## Matrices 
 
-(1) Now that you are a bit more used to R and to working with vectors, use logical indexing and negative indices to create the following vectors: 
+(1) Now that you are more used to R and to working with vectors, use logical indexing and negative indices to create the following vectors: 
 
 ```{r, echo=FALSE, eval=TRUE}
 x=2*(1:15); x
@@ -141,7 +142,7 @@ z=x[-(2:4)]; z
 mymatrix = matrix(1:12,4,3); mymatrix
 ```
 
-You can access the whole fist row of a matrix with `mymatrix[1,]` and a whole column with `mymatrix[,1]` (or instead of 1, another row or column).
+You can access the whole fist row of a matrix with `mymatrix[1,]` and the whole first column with `mymatrix[,1]` (or, instead of 1, another row or column).
 
 Matrix multiplication is done with `X*Y` where X and Y are matrices. R has (of course) many built-in functions for eigenvalues, inverting matrices, decompositions and so on. We won't need anything like that for this course, but many matrix functions are listed [here](https://www.statmethods.net/advstats/matrix.html) if you are interested. 
 
@@ -159,7 +160,7 @@ Now start with reading about data frames, [here](http://www.r-tutor.com/r-introd
 
 (1) Take a look at the (included with R) mtcars data, using `head(mtcars)` and `str(mtcars)`. Use the `[,1]` or `[,3]` or `[,4]`etc. commands to extract column and row slices from mtcars. 
 
-There are loads of datasets included with R, you can see a list of them with the `data()` command. These can be very useful when learning new techniques in R, and a lot of online tutorials will use them too. There are also so many tutorials and introductions to data frames out there, if you want to learn more. For example, there are more examples and a motivation and discussion of data frames at https://statistics.berkeley.edu/computing/r-vectors-matrices. 
+There are loads of datasets included with R, you can see a list of them with the `data()` command. These can be very useful when learning new techniques in R, and a lot of online tutorials will use them too. There are also so many tutorials and introductions to data frames out there, if you want to learn more. For example, there are more examples and a motivation and discussion of data frames at https://www.stat.berkeley.edu/~spector/s133/R-2a.html. 
 
 (2) Explore accessing the columns of mtcars with the syntax `mtcars$disp`. You can use this to make plots, e.g. histograms `hist(mtcars$disp)` or direct (non-ggplot - you'll learn what this means later) scatter plots like `plot(mtcars$mpg, mtcars$hp)` (miles per gallon and horsepower). 
 
@@ -184,7 +185,7 @@ Read a bit about factors in R here https://www.r-bloggers.com/data-types-part-3-
 
 **Note:** entering the command `as.factor(owncars$vs)` does not convert the type of `owncars$vs` to factor, it creates a new variable which is `owncars$vs` as a factor. In order to convert, we need to define `owncars$vs = as.factor(owncars$vs)`.
 
-When you are playing with things like the in-built datasets, it is usually a good idea to make your own copy before making any changes to the dataset. This way you know that the original version is still in memory if you need it. 
+When you are working with things like the in-built datasets, it is usually a good idea to make your own copy like this before making any changes. Then you know that the original version is still in memory if you need it. 
 
 ## Lists
 
@@ -218,14 +219,14 @@ You'll need to have internet access to download packages. Using the `install.pac
 library(ggplot2)
 ```
 
-It's also possible to download packages directly from other people's Github repositories. The commands are different but the approach is very similar. We will cover this in the second R tutorial, since we will need to download a specific package this way for the module. 
+It's also possible to download packages directly from other people's Github repositories. The commands are different but the approach is very similar. We won't need to do this for the module.  
 
 
 ## Plots with ggplot; also relevant for data frames
 
 As you might have seen from the plots you made earlier, the in-built R plotting tools aren't the most visually pleasing (at least in their default form). A really popular alternative is ggplot. We can't cover all of ggplot here, but we will give a brief intro. (Like with data frames, there are many ggplot tutorials online if you want to learn more).
 
-The ggplot syntax is very different to basic R plotting, and it can take some getting used to. But once you do, it's much easier to make complex and high quality plots. 
+The ggplot (and wider 'tidyverse' packages) syntax is very different to basic R plotting, and it can take some getting used to. But once you do, it's much easier to make complex and high quality figures. 
 
 (1) First, type `help(mtcars)` to remind yourself of the different column names
 
@@ -253,7 +254,7 @@ There's a whole range of further customizations we can make to our ggplot.
 ```{r}
 gg <- ggplot(mtcars, aes(x=hp, y=mpg)) + 
   geom_point(aes(col=carb), size=3) +  
-  geom_smooth(method="lm", col="firebrick", size=2) + 
+  geom_smooth(method="lm", col="firebrick", linewidth=2) + 
   coord_cartesian(xlim=c(50, 300), ylim=c(10, 30)) + 
   labs(title="Miles per gallon against gross horsepower", subtitle="From mtcars dataset", y="Mpg (US)", x="Horsepower (gross)", caption="1974 Car Trends") + theme_minimal()
 plot(gg)
