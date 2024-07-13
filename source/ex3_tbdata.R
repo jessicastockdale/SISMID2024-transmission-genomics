@@ -32,27 +32,10 @@ length(D)
 temp <- as.data.frame(as.matrix(D))
 table.paint(temp, cleg = 0, clabel.row = 0.5, clabel.col = 0.5)
 View(temp)
-
-
-temp <- t(as.matrix(D))
-temp <- temp[, ncol(temp):1]
-par(mar = c(1, 5, 5, 1))
-image(x = 1:86, y = 1:86, temp, col = rev(heat.colors(100)),
-      xaxt = "n", yaxt = "n", xlab = "", ylab = "")
-axis(side = 2, at = 1:86, lab = rownames(dna), las = 2, cex.axis = 0.5)
-axis(side = 3, at = 1:86, lab = rownames(dna), las = 3, cex.axis = 0.5)
 # Looking at the metadata, the isolates are not exactly sorted by time but quite a few are.
 # This might be why we see a little structure in the heatmap.
 
-# We could reorder the rows/columns of temp by date to look into this further:
-order_date <- order(annot) # gives date order to sort by
-D2 <- dist.dna(dna[order_date,], model = "TN93")
-temp2 <- t(as.matrix(D2))
-temp2 <- temp2[, ncol(temp2):1]
-par(mar = c(1, 5, 5, 1))
-image(x = 1:86, y = 1:86, temp2, col = rev(heat.colors(100)),
-      xaxt = "n", yaxt = "n", xlab = "", ylab = "")
-# Yes, when ordered by date we still see some structure
+# We could reorder the rows/columns of temp by date to look into this further
 
 #-----------------------------------------------------------
 ## Building trees
@@ -83,7 +66,7 @@ tiplabels(annot, bg = fac2col(annot, col.pal = myPal),
           cex = 0.5)
 legend("topleft", fill = num2col(temp, col.pal = myPal),
        leg = temp, ncol = 2, cex=0.5)
-# Early years are (generally) clustered towards the middle.
+# Early years are (kind of?) clustered towards the middle.
 
 # Let's root it - by the earliest tip
 tre1.2 <- root(tre1, out = which.min(annot))
@@ -147,7 +130,8 @@ plot(tre4, cex = 0.6)
 write.phyDat (tre4, file = "HclustTree")
 
 
-# We can create different looking trees from different methods
+# We can create different looking trees from different methods, 
+# but if we investigate there are a lot of similarities
 
 #-----------------------------------------------------------
 ## Maximum parsimony

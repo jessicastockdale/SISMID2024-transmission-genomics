@@ -39,14 +39,6 @@ temp <- as.data.frame(as.matrix(D))
 table.paint(temp, cleg = 0, clabel.row = 0.5, clabel.col = 0.5)
 View(temp)
 
-
-temp <- t(as.matrix(D))
-temp <- temp[, ncol(temp):1]
-par(mar = c(1, 5, 5, 1))
-image(x = 1:40, y = 1:40, temp, col = rev(heat.colors(100)),
-      xaxt = "n", yaxt = "n", xlab = "", ylab = "")
-axis(side = 2, at = 1:40, lab = rownames(dna), las = 2, cex.axis = 0.5)
-axis(side = 3, at = 1:40, lab = rownames(dna), las = 3, cex.axis = 0.5)
 # Looking at the metadata, there doesn't seem to be any obvious structure to the 
 # ordering of the isolates. So it's not that surprising we don't see much structure here.
 
@@ -70,7 +62,7 @@ tiplabels(annot, bg = fac2col(annot, col.pal = myPal),
           cex = 0.5) 
 temp <- pretty(seq.Date(from = as.Date("2020-03-19"), to = as.Date("2020-04-07"), by = 1), 5)
 legend("topright", fill = any2col(temp, col.pal = myPal)$col,
-       leg = temp, ncol = 2, cex = 0.5)
+       leg = temp, ncol = 2, cex = 0.8)
 # Notice that all the distances are short, since these were sampled over a small time frame
 # and mutations accumulate relatively slowly in covid.
 
@@ -90,7 +82,7 @@ tiplabels(annot, bg = transp(fac2col(annot, col.pal = myPal),                   
 axisPhylo()
 temp <- pretty(seq.Date(from = as.Date("2020-03-19"), to = as.Date("2020-04-07"), by = 1), 5)
 legend("topright", fill = transp(any2col(temp, col.pal = myPal)$col),
-       leg = temp, ncol = 2, cex=0.5)
+       leg = temp, ncol = 2, cex=0.8)
 
 
 # Estimate the molecular clock
@@ -106,7 +98,8 @@ plot(mutFromRoot~daysFromRoot, xlab="Days from the root",
 # Then we perform a regression of these quantities, and add to the plot.
 mclock <- lm(mutFromRoot~-1+daysFromRoot)
 abline(mclock, col="blue",lwd=2)
-
+# It doesn't look like a very successful regression here... 
+# does that match with what you would imagine for SARS-COV-2?
 
 # What are the regression coefficients?
 summary(mclock)
@@ -141,7 +134,7 @@ plot(tre4, cex = 0.6)
 write.phyDat (tre4, file = "HclustTree")
 
 # We can create very different looking trees from different methods!
-# This is likely a result of low diversity in these sequences (a common theme for covid),
+# This is likely a result of low diversity in these sequences (a common theme for sars-cov-2),
 # meaning that small changes in a model have large impact on the trees
 
 #-----------------------------------------------------------
