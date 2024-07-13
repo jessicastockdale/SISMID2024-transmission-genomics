@@ -31,7 +31,8 @@ plot(ph)
 # We convert the phylogeny to a ptree object and plot it, aligning the time
 ptree <- ptreeFromPhylo(ph,dateLastSample=(max(dates)))
 plot(ptree)
-# The MRCA (most recent common ancestor) goes back to 1990. This seems reasonable for slow-transmitting and -evolving TB
+# The MRCA (most recent common ancestor) goes back to 1990. This seems reasonable 
+# for slow-transmitting and -evolving TB
 
 
 # TB: gen time ~ gamma(shape = 1.3, rate = 0.3) years, samp time ~ gamma(shape = 1.1, rate = 0.4) years
@@ -49,7 +50,7 @@ dateT
 #-----------------------------------------------------------
 ##MCMC
 
-# I'm using a small number of iterations, just for a preliminary run. You will want to increase
+# I'm using a small number of iterations, just for a preliminary run. You would want to increase
 # this in order to get better results - we should use our MCMC diagnostics to confirm if we have enough
 # iterations (trace plots, ESS)
 res<-inferTTree(ptree,mcmcIterations=5000,w.shape=w.shape,w.scale=w.scale,
@@ -67,7 +68,7 @@ plot(res)
 # update pi (updatePi=F).
 mcmc=convertToCoda(res)
 effectiveSize(mcmc)
-# Yes, the effective sample size of Neg is low as the trace plots suggested. 
+# Yes, the effective sample size of Neg is quite low as the trace plots suggested. 
 
 # Get the medoid tree
 med=medTTree(res)
@@ -93,7 +94,8 @@ lattice::levelplot(mat,xlab='',ylab='')
 
 # Additional figures
 a=getIncidentCases(res,show.plot = T)
-# A pretty high sampling rate - with most of the unsampled ones towards the tips. 
+# A pretty high sampling rate - with most of the unsampled ones towards the tips
+# as suspected above
 # This is further evidence we might want to increase dateT
 a=getGenerationTimeDist(res,show.plot = T)
 a=getSamplingTimeDist(res,show.plot = T)
@@ -128,6 +130,10 @@ visNetwork(modnp$nodes,modnp$edges,width = "900px",height="600px") %>%
 
 # Even though we don't think this MCMC run was particularly great (too early dateT
 # and too few iterations), we still get some nice clusters of cases.
+
+# Remember that this network is interactive
+
+
 
 ## Other additional analyses
 

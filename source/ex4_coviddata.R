@@ -71,7 +71,7 @@ res<-inferTTree(ptree,mcmcIterations=5000,w.shape=w.shape,w.scale=w.scale,
 
 plot(res)
 # Even for just 5000 iterations the mixing looks fair. Note that the pi plot is flat 
-#because we don't update pi (updatePi=F).
+# because we don't update pi (updatePi=F).
 mcmc=convertToCoda(res)
 effectiveSize(mcmc)
 # Th effective sample size of neg is low though - we should probably increase the number of iterations
@@ -80,6 +80,7 @@ effectiveSize(mcmc)
 med=medTTree(res)
 plot(med)
 # Looks like quite a lot of unsampled cases - this suggests we might be fixing pi too high
+# This makes sense considering the context of the data
 
 # Plot the transmission tree of the medoid - will be hard to read for so many cases
 ttree=extractTTree(med)
@@ -132,6 +133,7 @@ visNetwork(modnp$nodes,modnp$edges,width = "900px",height="600px") %>%
 # uncomment the last section to save the network to html
 # the tip names are really long which causes the bubbles to be giant!
 # You can edit the labels by changing modnp$nodes$label to something shorter
+# Remember this is interactive
 
 
 ## Other additional analyses
