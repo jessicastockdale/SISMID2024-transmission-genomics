@@ -42,7 +42,7 @@ Exercise 3: <!--[Data](https://jessicastockdale.github.io/SISMID2024-transmissio
 Exercise 4: <!--[Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise4.html), [TransPhylo Extra Code](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/transphylo_extras.R)  and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex4_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex4_tbdata.R). -->
 
 Data for exercises 2, 3, 4: [TB data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/TB_data.zip). COVID-19 data will be provided on Slack.
-Excercise RMD files: <!--[Exercise 1](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1.Rmd), [Exercise 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise2.Rmd), [Exercise 3](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise3.Rmd), [Exercise 4](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise4.Rmd)-->
+Excercise RMD files: <!--[Exercise 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise2.Rmd), [Exercise 3](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise3.Rmd), [Exercise 4](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise4.Rmd)-->
 
 
 ### Lecture slides
