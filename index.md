@@ -32,7 +32,7 @@ In addition, for participants new to genomic sequencing and genomic data, we ask
 
 Here you will be able to download the course exercise materials. Click each link to download data files and access exercise instructions. Links to solutions will be added once the exercises are complete.
 
-Exercise 1: <!--[Data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/FMD-AU-data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1.html), [Tips](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_Tips.html),  and [Solutions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_results.pdf). -->
+Exercise 1: [Data](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/FMD-AU-data.zip), [Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1.html), [Tips](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_Tips.html)<!--,  and [Solutions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise1_results.pdf). -->
 
 Exercise 2: <!--[Instructions](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/Exercise2.html), [Extra Helper Code](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/wf_distribution.R)
  and Solutions: [COVID-19](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex2_coviddata.R), [TB](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/source/ex2_tbdata.R). -->
