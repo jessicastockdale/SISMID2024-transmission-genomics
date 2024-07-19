@@ -58,8 +58,9 @@ Here you will be able to download the lecture slides.
 [Lecture 4](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_L3_transphylomath_2024.pdf)
 
 <!--[Research forefronts 1](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/--------.pdf)-->
+[Questions slides](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/SISMID2024workshop.pdf)
 
-[Research forefronts 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_RF2_2024.pdf)
+[Research forefronts 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_RF2_2024.pdf) 
 
 
 ### Resources/reading list
