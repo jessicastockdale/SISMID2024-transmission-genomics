@@ -72,7 +72,7 @@ legend("topleft", fill = num2col(temp, col.pal = myPal),
 tre1.2 <- root(tre1, out = which.min(annot))
 plot(tre1.2, show.tip = FALSE, edge.width = 2)
 title("Rooted NJ tree for the TB data")
-tiplabels(annot, bg = transp(fac2col(annot, col.pal = myPal),                                   + 0.7), cex = 0.5, fg = "transparent")
+tiplabels(annot, bg = transp(fac2col(annot, col.pal = myPal), + 0.7), cex = 0.5, fg = "transparent")
 axisPhylo()
 temp <- pretty(1997:2010, 5)
 legend("topright", fill = transp(fac2col(temp, col.pal = myPal),
@@ -80,6 +80,9 @@ legend("topright", fill = transp(fac2col(temp, col.pal = myPal),
 # Yes, there are some exceptions but we are generally seeing close-in-time sequences
 # close together, and a lot of 1996-1998 sequences at the start of the tree. This
 # is what we would expect for TB (which has a slow mutation rate and long latency).
+
+# A good option would be to use RTT root to tip regression https://rdrr.io/cran/ape/man/rtt.html 
+# to select the root
 
 # Estimate the molecular clock
 
