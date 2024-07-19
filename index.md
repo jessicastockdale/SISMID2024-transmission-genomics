@@ -61,7 +61,7 @@ Here you will be able to download the lecture slides.
 
 [Research forefronts 1](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid2024-BREATH.pdf)
 
-[Research forefronts 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_RF2_2024.pdf) 
+[Research forefronts 2](https://jessicastockdale.github.io/SISMID2024-transmission-genomics/Files/sismid_RF2_2024.pdf).
 
 
 ### Resources/reading list
